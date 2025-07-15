@@ -31,4 +31,9 @@ public class TaskService extends CAbstractService<Task> {
 		task.setDueDate(dueDate);
 		repository.saveAndFlush(task);
 	}
+
+	@Transactional
+	public void createViewClassDebuggingTask() {
+		createTask("view class debugging", null);
+	}
 }
