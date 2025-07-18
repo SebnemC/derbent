@@ -1,9 +1,8 @@
 package tech.derbent.login.domain;
 
-import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
+import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
 import jakarta.validation.constraints.Size;
 import tech.derbent.abstracts.annotations.MetaData;
 import tech.derbent.users.domain.CUser;
@@ -20,8 +19,7 @@ import tech.derbent.users.domain.CUser;
  * 5. User roles determine access permissions
  */
 @Entity
-@Table(name = "cloginuser") // Separate table for login users with authentication data
-@AttributeOverride(name = "id", column = @Column(name = "login_user_id")) // Override the default column name for the ID field
+@DiscriminatorValue("LOGIN_USER")
 public class CLoginUser extends CUser {
 
 	/**

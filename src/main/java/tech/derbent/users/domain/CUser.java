@@ -5,7 +5,12 @@ import java.util.Set;
 
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
+import jakarta.persistence.DiscriminatorColumn;
+import jakarta.persistence.DiscriminatorType;
+import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
+import jakarta.persistence.Inheritance;
+import jakarta.persistence.InheritanceType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
@@ -18,6 +23,9 @@ import tech.derbent.projects.domain.CProject;
 @Entity
 @Table(name = "cuser") // table name for the entity as the default is the class name in lowercase
 @AttributeOverride(name = "id", column = @Column(name = "user_id")) // Override the default column name for the ID field
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@DiscriminatorColumn(name = "user_type", discriminatorType = DiscriminatorType.STRING)
+@DiscriminatorValue("USER")
 public class CUser extends CEntityDB {
 
 	@Column(name = "name", nullable = false, length = MAX_LENGTH_NAME, unique = false)
