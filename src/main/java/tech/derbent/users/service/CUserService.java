@@ -3,6 +3,7 @@ package tech.derbent.users.service;
 import java.time.Clock;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -21,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import jakarta.persistence.EntityNotFoundException;
 import tech.derbent.abstracts.services.CAbstractService;
+import tech.derbent.projects.domain.CProject;
 import tech.derbent.users.domain.CUser;
 
 @Service
@@ -133,6 +135,29 @@ public class CUserService extends CAbstractService<CUser> implements UserDetails
 		return User.builder().username(loginUser.getUsername()).password(loginUser.getPassword()) // Already encoded password from database
 			.authorities(authorities).accountExpired(false).accountLocked(false).credentialsExpired(false).disabled(!loginUser.isEnabled()) // Convert enabled flag to disabled flag
 			.build();
+	}
+
+	/**
+	 * Gets a user by username.
+	 * @param username the username to search for
+	 * @return the CUser if found
+	 * @throws UsernameNotFoundException if user not found
+	 */
+	public CUser getUserByUsername(final String username) throws UsernameNotFoundException {
+		logger.debug("Getting user by username: {}", username);
+		return ((CUserRepository) repository).findByUsername(username)
+			.orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
+	}
+
+	/**
+	 * Gets the projects accessible to a user based on their project settings.
+	 * @param userId the user ID
+	 * @return list of accessible projects
+	 */
+	public List<CProject> getUserAccessibleProjects(final Long userId) {
+		logger.debug("Getting accessible projects for user ID: {}", userId);
+		final CUser user = getUserWithProjects(userId);
+		return ((CUserRepository) repository).findAccessibleProjectsByUserId(userId);
 	}
 
 	/**

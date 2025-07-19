@@ -35,6 +35,7 @@ import com.vaadin.flow.theme.lumo.LumoUtility.Padding;
 import com.vaadin.flow.theme.lumo.LumoUtility.TextColor;
 
 import jakarta.annotation.security.PermitAll;
+import tech.derbent.base.service.SessionService;
 import tech.derbent.base.ui.component.ViewToolbar;
 
 /**
@@ -57,11 +58,13 @@ public final class MainLayout extends AppLayout implements AfterNavigationObserv
 	protected final Logger LOGGER = LoggerFactory.getLogger(getClass());
 	private final User currentUser;
 	private final AuthenticationContext authenticationContext;
+	private final SessionService sessionService;
 	private ViewToolbar mainToolbar;
 
-	MainLayout(final AuthenticationContext authenticationContext) {
+	MainLayout(final AuthenticationContext authenticationContext, final SessionService sessionService) {
 		LOGGER.info("Creating MainLayout");
 		this.authenticationContext = authenticationContext;
+		this.sessionService = sessionService;
 		this.currentUser = authenticationContext.getAuthenticatedUser(User.class).orElse(null);
 		setPrimarySection(Section.DRAWER);
 		addToDrawer(createHeader(), new Scroller(createSideNav()), createUserMenu());
@@ -99,7 +102,7 @@ public final class MainLayout extends AppLayout implements AfterNavigationObserv
 		final Div navBar = new Div();
 		// dont add any other compoents to the navbar, just the toolbar otherwise call
 		// it with ,xyz,xyz etc..
-		mainToolbar = new ViewToolbar("Main Layout");
+		mainToolbar = new ViewToolbar("Main Layout", sessionService);
 		navBar.add(mainToolbar);
 		return navBar;
 	}
