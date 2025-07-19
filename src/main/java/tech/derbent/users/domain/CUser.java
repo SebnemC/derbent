@@ -63,7 +63,6 @@ public class CUser extends CEntityDB {
 	@Column(name = "updated_date", nullable = true)
 	private LocalDateTime updated_date;
 	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-	@JoinTable(name = "cuser_project_settings", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "project_id"))
 	private List<CUserProjectSettings> projectSettings;
 
 	public CUser() {
