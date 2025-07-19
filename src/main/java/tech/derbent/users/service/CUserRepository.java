@@ -49,6 +49,6 @@ public interface CUserRepository extends CAbstractRepository<CUser> {
 	 * @param userId the user ID
 	 * @return list of accessible projects
 	 */
-	@Query("SELECT p FROM CProject p WHERE p.id IN (SELECT ups.projectId FROM CUserProjectSettings ups WHERE ups.user.id = :userId)")
+	@Query(value = "SELECT p.* FROM cproject p INNER JOIN cuser_project_settings ups ON p.id = ups.project_id WHERE ups.user_id = :userId", nativeQuery = true)
 	java.util.List<CProject> findAccessibleProjectsByUserId(@Param("userId") Long userId);
 }
