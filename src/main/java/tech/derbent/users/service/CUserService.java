@@ -101,6 +101,7 @@ public class CUserService extends CAbstractService<CUser> implements UserDetails
 	 * @param login the login username
 	 * @return the CUser if found, null otherwise
 	 */
+	@Transactional
 	public CUser findByLogin(final String login) {
 		logger.debug("Finding user by login: {}", login);
 		return ((CUserRepository) repository).findByUsername(login).orElse(null);
@@ -113,6 +114,7 @@ public class CUserService extends CAbstractService<CUser> implements UserDetails
 	 */
 	public PasswordEncoder getPasswordEncoder() { return passwordEncoder; }
 
+	@Transactional
 	public CUser getUserWithProjects(final Long id) {
 		return ((CUserRepository) repository).findByIdWithProjects(id).orElseThrow(() -> new EntityNotFoundException("User not found"));
 	}
@@ -130,6 +132,7 @@ public class CUserService extends CAbstractService<CUser> implements UserDetails
 	 * @throws UsernameNotFoundException if user not found in database
 	 */
 	@Override
+	@Transactional
 	public UserDetails loadUserByUsername(final String username) throws UsernameNotFoundException {
 		logger.debug("Attempting to load user by username: {}", username);
 		// Step 1: Query database for user by username

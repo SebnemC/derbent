@@ -30,6 +30,7 @@ public class CProjectService extends CAbstractService<CProject> {
 		repository.saveAndFlush(entity);
 	}
 
+	@Transactional
 	public List<CProject> findAll() {
 		LOGGER.info("Fetching all projects");
 		return repository.findAll();
