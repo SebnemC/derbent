@@ -18,7 +18,17 @@ import tech.derbent.users.service.CUserService;
 
 /**
  * Service to manage user session state including active user and active project.
- * Uses Vaadin session to store session-specific information.
+ * Layer: Service (MVC)
+ * 
+ * This service handles session management for project-based filtering and user context.
+ * It provides methods to get/set active project and user, with automatic fallbacks
+ * and proper session management. Uses Vaadin session storage for persistence.
+ * 
+ * Key responsibilities:
+ * - Manage active project selection with automatic fallback to first available project
+ * - Handle user session context with authentication integration
+ * - Trigger UI refresh events when project changes
+ * - Provide session cleanup capabilities
  */
 @Service
 public class SessionService {
@@ -31,7 +41,15 @@ public class SessionService {
 	private final CUserService userService;
 	private final CProjectService projectService;
 
-	public SessionService(final AuthenticationContext authenticationContext, final CUserService userService, final CProjectService projectService) {
+	/**
+	 * Constructor with dependency injection.
+	 * @param authenticationContext Spring Security authentication context
+	 * @param userService Service for user operations
+	 * @param projectService Service for project operations
+	 */
+	public SessionService(final AuthenticationContext authenticationContext, 
+	                     final CUserService userService, 
+	                     final CProjectService projectService) {
 		this.authenticationContext = authenticationContext;
 		this.userService = userService;
 		this.projectService = projectService;
@@ -39,11 +57,14 @@ public class SessionService {
 
 	/**
 	 * Gets the currently active project from the session.
-	 * If no project is set, returns the first available project.
+	 * If no project is set, automatically sets and returns the first available project.
+	 * This ensures there's always an active project when projects exist.
+	 * @return Optional containing the active project, or empty if no projects available
 	 */
 	public Optional<CProject> getActiveProject() {
 		final VaadinSession session = VaadinSession.getCurrent();
 		if (session == null) {
+			LOGGER.warn("No Vaadin session available - cannot get active project");
 			return Optional.empty();
 		}
 
@@ -54,6 +75,7 @@ public class SessionService {
 			if (!availableProjects.isEmpty()) {
 				activeProject = availableProjects.get(0);
 				setActiveProject(activeProject);
+				LOGGER.debug("No active project found, automatically set to: {}", activeProject.getName());
 			}
 		}
 		return Optional.ofNullable(activeProject);
@@ -61,6 +83,8 @@ public class SessionService {
 
 	/**
 	 * Sets the active project in the session and triggers UI refresh.
+	 * This method broadcasts a project change event to all project-aware components.
+	 * @param project The project to set as active, or null to clear
 	 */
 	public void setActiveProject(final CProject project) {
 		final VaadinSession session = VaadinSession.getCurrent();
@@ -68,17 +92,22 @@ public class SessionService {
 			session.setAttribute(ACTIVE_PROJECT_KEY, project);
 			LOGGER.info("Active project set to: {}", project != null ? project.getName() : "null");
 			
-			// Trigger UI refresh for all open UIs
+			// Trigger UI refresh for all project-aware components
 			refreshProjectAwareComponents();
+		} else {
+			LOGGER.warn("No Vaadin session available - cannot set active project");
 		}
 	}
 
 	/**
 	 * Gets the currently active user from the session.
+	 * If no user is cached, attempts to load from authentication context.
+	 * @return Optional containing the active user, or empty if not authenticated
 	 */
 	public Optional<CUser> getActiveUser() {
 		final VaadinSession session = VaadinSession.getCurrent();
 		if (session == null) {
+			LOGGER.warn("No Vaadin session available - cannot get active user");
 			return Optional.empty();
 		}
 
@@ -93,6 +122,7 @@ public class SessionService {
 				activeUser = userService.findByLogin(username);
 				if (activeUser != null) {
 					setActiveUser(activeUser);
+					LOGGER.debug("Loaded user from authentication context: {}", username);
 				}
 			}
 		}
@@ -101,18 +131,22 @@ public class SessionService {
 
 	/**
 	 * Sets the active user in the session.
+	 * @param user The user to set as active, or null to clear
 	 */
 	public void setActiveUser(final CUser user) {
 		final VaadinSession session = VaadinSession.getCurrent();
 		if (session != null) {
 			session.setAttribute(ACTIVE_USER_KEY, user);
 			LOGGER.info("Active user set to: {}", user != null ? user.getLogin() : "null");
+		} else {
+			LOGGER.warn("No Vaadin session available - cannot set active user");
 		}
 	}
 
 	/**
 	 * Gets all available projects for the current user.
-	 * For now, returns all projects. Can be enhanced to filter by user permissions.
+	 * Currently returns all projects - can be enhanced to filter by user permissions.
+	 * @return List of all available projects
 	 */
 	public List<CProject> getAvailableProjects() {
 		return projectService.findAll();
@@ -120,6 +154,8 @@ public class SessionService {
 
 	/**
 	 * Triggers refresh of project-aware components when project changes.
+	 * Sets a timestamp in session attributes that project-aware views can monitor
+	 * to detect project changes and refresh their data accordingly.
 	 */
 	private void refreshProjectAwareComponents() {
 		final UI ui = UI.getCurrent();
@@ -127,29 +163,16 @@ public class SessionService {
 			ui.access(() -> {
 				// Broadcast a project change event that project-aware components can listen to
 				ui.getSession().setAttribute("projectChanged", System.currentTimeMillis());
-				LOGGER.debug("Project change event broadcasted");
+				LOGGER.debug("Project change event broadcasted at: {}", System.currentTimeMillis());
 			});
+		} else {
+			LOGGER.warn("No UI available - cannot broadcast project change event");
 		}
 	}
 
 	/**
-	 * Triggers UI refresh to update components when project changes.
-	 * @deprecated Use refreshProjectAwareComponents() instead for better performance
-	 */
-	@Deprecated
-	private void refreshUI() {
-		final UI ui = UI.getCurrent();
-		if (ui != null) {
-			ui.access(() -> {
-				// Trigger a navigation to the current route to refresh components
-				ui.getPage().getHistory().replaceState(null, "");
-				ui.getPage().reload();
-			});
-		}
-	}
-
-	/**
-	 * Clears session data on logout.
+	 * Clears all session data on logout.
+	 * Removes both active project and active user from session storage.
 	 */
 	public void clearSession() {
 		final VaadinSession session = VaadinSession.getCurrent();
@@ -157,6 +180,8 @@ public class SessionService {
 			session.setAttribute(ACTIVE_PROJECT_KEY, null);
 			session.setAttribute(ACTIVE_USER_KEY, null);
 			LOGGER.info("Session data cleared");
+		} else {
+			LOGGER.warn("No Vaadin session available - cannot clear session data");
 		}
 	}
 }

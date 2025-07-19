@@ -16,6 +16,11 @@ import tech.derbent.abstracts.services.CAbstractService;
 import tech.derbent.projects.domain.CProject;
 import tech.derbent.risks.domain.CRisk;
 
+/**
+ * Service layer for CRisk entity management.
+ * Implements MVC architecture principles - handles business logic and data operations.
+ * Layer: Service (MVC)
+ */
 @Service
 @PreAuthorize("isAuthenticated()")
 @Menu(order = 0, icon = "vaadin:clipboard-check", title = "Settings.Risks")
@@ -26,7 +31,11 @@ public class CRiskService extends CAbstractService<CRisk> {
         super(repository, clock);
     }
 
-    // Additional methods specific to CRisk can be added here
+    /**
+     * Creates a new risk entity with the given name.
+     * @param name The name of the risk to create
+     * @throws RuntimeException if name is "fail" (for testing error handling)
+     */
     @Transactional
     public void createEntity(final String name) {
         if ("fail".equals(name)) {
@@ -38,15 +47,24 @@ public class CRiskService extends CAbstractService<CRisk> {
     }
 
 	/**
-	 * Finds risks by project.
+	 * Finds all risks associated with the given project.
+	 * Uses JOIN FETCH to eagerly load project associations and avoid lazy loading issues.
+	 * @param project The project to filter risks by
+	 * @return List of risks belonging to the specified project
 	 */
+	@Transactional
 	public List<CRisk> findByProject(final CProject project) {
 		return ((CRiskRepository) repository).findByProject(project);
 	}
 
 	/**
-	 * Gets paginated risks by project.
+	 * Gets paginated list of risks for the specified project.
+	 * Uses JOIN FETCH to eagerly load project associations and avoid lazy loading issues.
+	 * @param project The project to filter risks by
+	 * @param pageable Pagination information
+	 * @return Page of risks belonging to the specified project
 	 */
+	@Transactional
 	public Page<CRisk> listByProject(final CProject project, final Pageable pageable) {
 		return ((CRiskRepository) repository).findByProject(project, pageable);
 	}
