@@ -97,11 +97,6 @@ public class CActivitiesView extends CProjectAwareMDPage<CActivity> {
 	}
 
 	@Override
-	protected CActivity newEntity() {
-		return super.newEntity(); // Uses the project-aware implementation from parent
-	}
-
-	@Override
 	protected void setProjectForEntity(final CActivity entity, final CProject project) {
 		entity.setProject(project);
 	}

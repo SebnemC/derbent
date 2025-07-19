@@ -118,11 +118,6 @@ public class CRiskView extends CProjectAwareMDPage<CRisk> {
 	@Override
 	protected void initPage() {}
 
-	@Override
-	protected CRisk newEntity() {
-		return super.newEntity(); // Uses the project-aware implementation from parent
-	}
-
 	private void saveRisk() {
 		try {
 			CRisk risk = currentEntity; // currentEntity is set by the grid selection
