@@ -56,7 +56,7 @@ public class CActivitiesView extends CProjectAwareMDPage<CActivity> {
 			@Override
 			@SuppressWarnings("unchecked")
 			public <T extends CEntityDB> java.util.List<T> getItems(final Class<T> entityType) {
-				if (entityType == CActivityType.class) {
+				if (entityType == CActivityType.class && activityTypeService != null) {
 					return (java.util.List<T>) activityTypeService.list(org.springframework.data.domain.Pageable.unpaged());
 				}
 				return java.util.Collections.emptyList();

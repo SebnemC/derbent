@@ -50,7 +50,7 @@ public class CUsersView extends CAbstractMDPage<CUser> {
 			@Override
 			@SuppressWarnings("unchecked")
 			public <T extends CEntityDB> java.util.List<T> getItems(final Class<T> entityType) {
-				if (entityType == CUserType.class) {
+				if (entityType == CUserType.class && userTypeService != null) {
 					return (java.util.List<T>) userTypeService.list(org.springframework.data.domain.Pageable.unpaged());
 				}
 				return java.util.Collections.emptyList();
