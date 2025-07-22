@@ -25,14 +25,15 @@ main.flex.justify-center.items-center {
     box-sizing: border-box;
 }
 
-/* Improve paragraph spacing in login footer */
-p.text-center {
+/* Improve paragraph spacing in login footer while maintaining center alignment */
+vaadin-login-overlay-footer p {
     margin: var(--lumo-space-xs) 0 !important;
     line-height: 1.6 !important;
     padding: var(--lumo-space-xs) 0 !important;
+    text-align: center !important;
 }
 
 /* Better spacing for Reset Database button */
-main vaadin-button {
+vaadin-login-overlay-footer vaadin-button {
     margin-top: var(--lumo-space-s) !important;
 }
