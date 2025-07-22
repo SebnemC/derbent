@@ -18,3 +18,21 @@ vaadin-login-form-wrapper {
     min-width: 450px !important;
     max-width: 450px !important;
 }
+
+/* Fix login screen padding and margins */
+main.flex.justify-center.items-center {
+    padding: var(--lumo-space-m);
+    box-sizing: border-box;
+}
+
+/* Improve paragraph spacing in login footer */
+p.text-center {
+    margin: var(--lumo-space-xs) 0 !important;
+    line-height: 1.6 !important;
+    padding: var(--lumo-space-xs) 0 !important;
+}
+
+/* Better spacing for Reset Database button */
+main vaadin-button {
+    margin-top: var(--lumo-space-s) !important;
+}
