@@ -211,7 +211,8 @@ public final class ViewToolbar extends Composite<Header> implements CProjectList
      */
     private Div createRightSideComponents() {
         final var rightSide = new Div();
-        rightSide.addClassNames(Display.FLEX, AlignItems.CENTER, Gap.SMALL);
+        rightSide.addClassNames(Display.FLEX, AlignItems.CENTER, Gap.MEDIUM);
+        rightSide.getStyle().set("margin-left", "auto"); // Ensure right alignment
 
         // Create user info components
         createUserInfoComponents();
@@ -219,11 +220,14 @@ public final class ViewToolbar extends Composite<Header> implements CProjectList
         // Create layout toggle button
         createLayoutToggleButton();
         
-        // Add components to right side if they are available
+        // Add user components if available
         if (userAvatar != null && usernameSpan != null) {
-            rightSide.add(userAvatar, usernameSpan);
+            final var userInfo = new Div(userAvatar, usernameSpan);
+            userInfo.addClassNames(Display.FLEX, AlignItems.CENTER, Gap.SMALL);
+            rightSide.add(userInfo);
         }
         
+        // Add layout toggle with additional spacing
         if (layoutToggleButton != null) {
             rightSide.add(layoutToggleButton);
         }
