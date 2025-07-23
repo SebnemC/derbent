@@ -56,6 +56,8 @@ public abstract class CAbstractMDPage<EntityClass extends CEntityDB> extends CAb
 		// create a split layout for the main content, vertical split
 		splitLayout.setSizeFull();
 		splitLayout.setOrientation(SplitLayout.Orientation.VERTICAL);
+		// Set splitter position to the middle (50%) by default
+		splitLayout.setSplitterPosition(50);
 		// Create UI
 		createGridLayout();
 		detailsTabLayout.setClassName("details-tab-layout");

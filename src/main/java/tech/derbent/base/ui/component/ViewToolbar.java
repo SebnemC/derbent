@@ -251,8 +251,8 @@ public final class ViewToolbar extends Composite<Header> implements CProjectList
      * @return A Div containing the user information, or null if no user is available
      */
     private Div createUserDisplay() {
-        return sessionService.getActiveUser()
-            .map(user -> {
+        return sessionService.getActiveUserDisplayName()
+            .map(userName -> {
                 final Div userDisplay = new Div();
                 userDisplay.addClassNames(Display.FLEX, AlignItems.CENTER, Gap.SMALL);
                 
@@ -262,9 +262,6 @@ public final class ViewToolbar extends Composite<Header> implements CProjectList
                 userIcon.addClassNames(com.vaadin.flow.theme.lumo.LumoUtility.IconSize.SMALL);
                 
                 // Add user name
-                final String userName = user.getName() != null && !user.getName().trim().isEmpty() 
-                    ? user.getName() 
-                    : user.getLogin();
                 final Span userNameSpan = new Span(userName);
                 userNameSpan.addClassNames(FontWeight.NORMAL);
                 

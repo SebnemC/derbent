@@ -143,6 +143,20 @@ public class SessionService {
     }
 
     /**
+     * Gets the display name of the currently active user. 
+     * Returns the user's name if available, otherwise returns the login.
+     * This method avoids exposing the CUser object to prevent circular dependencies.
+     * 
+     * @return Optional containing the user's display name, empty if no user is active
+     */
+    public Optional<String> getActiveUserDisplayName() {
+        return getActiveUser().map(user -> {
+            final String name = user.getName();
+            return (name != null && !name.trim().isEmpty()) ? name : user.getLogin();
+        });
+    }
+
+    /**
      * Gets all available projects for the current user. For now, returns all projects. Can be enhanced to filter by
      * user permissions.
      */
