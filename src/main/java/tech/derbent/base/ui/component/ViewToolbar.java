@@ -26,6 +26,9 @@ import com.vaadin.flow.theme.lumo.LumoUtility.JustifyContent;
 import com.vaadin.flow.theme.lumo.LumoUtility.Margin;
 
 import tech.derbent.abstracts.interfaces.CProjectListChangeListener;
+import tech.derbent.abstracts.views.CLayoutToggleButton;
+import tech.derbent.base.enums.CLayoutMode;
+import tech.derbent.base.service.CLayoutModeService;
 import tech.derbent.projects.domain.CProject;
 import tech.derbent.session.service.SessionService;
 
@@ -53,7 +56,9 @@ public final class ViewToolbar extends Composite<Header> implements CProjectList
     protected final Logger LOGGER = LoggerFactory.getLogger(getClass());
     private final H1 title;
     private final SessionService sessionService;
+    private final CLayoutModeService layoutModeService;
     private ComboBox<CProject> projectComboBox;
+    private CLayoutToggleButton layoutToggleButton;
 
     /**
      * Constructs a ViewToolbar with a title and optional components.
@@ -62,12 +67,16 @@ public final class ViewToolbar extends Composite<Header> implements CProjectList
      *            The title of the view to be displayed in the toolbar.
      * @param sessionService
      *            The session service for managing project selection.
+     * @param layoutModeService
+     *            The layout mode service for managing display mode.
      * @param components
      *            Optional components to be added to the toolbar.
      */
-    public ViewToolbar(final String viewTitle, final SessionService sessionService, final Component... components) {
+    public ViewToolbar(final String viewTitle, final SessionService sessionService, 
+                      final CLayoutModeService layoutModeService, final Component... components) {
         LOGGER.debug("Creating ViewToolbar for {}", viewTitle);
         this.sessionService = sessionService;
+        this.layoutModeService = layoutModeService;
         addClassNames(Display.FLEX, FlexDirection.COLUMN, JustifyContent.BETWEEN, AlignItems.STRETCH, Gap.MEDIUM,
                 FlexDirection.Breakpoint.Medium.ROW, AlignItems.Breakpoint.Medium.CENTER);
         
@@ -86,6 +95,9 @@ public final class ViewToolbar extends Composite<Header> implements CProjectList
 
         // Create project selection combobox
         createProjectComboBox();
+        
+        // Create layout toggle button
+        createLayoutToggleButton();
 
         // add them to the content of the header
         getContent().add(toggleAndTitle);
@@ -99,13 +111,43 @@ public final class ViewToolbar extends Composite<Header> implements CProjectList
             getContent().add(actions);
         }
 
-        // Add project selector to the right side
+        // Create right side container with user info, layout toggle, and project selector
+        final var rightContainer = new Div();
+        rightContainer.addClassNames(Display.FLEX, AlignItems.CENTER, Gap.MEDIUM);
+        
+        // Add user display
+        final var userDisplay = createUserDisplay();
+        if (userDisplay != null) {
+            rightContainer.add(userDisplay);
+        }
+        
+        // Add layout toggle button
+        rightContainer.add(layoutToggleButton);
+        
+        // Add project selector
         final var projectSelector = new Div(new Span("Active Project:"), projectComboBox);
         projectSelector.addClassNames(Display.FLEX, AlignItems.CENTER, Gap.SMALL);
-        getContent().add(projectSelector);
+        rightContainer.add(projectSelector);
+        
+        getContent().add(rightContainer);
 
         // Register for project list change notifications
         sessionService.addProjectListChangeListener(this);
+    }
+    
+    /**
+     * Backward compatible constructor for existing code.
+     * Uses a null layout mode service which will disable the layout toggle feature.
+     * 
+     * @param viewTitle
+     *            The title of the view to be displayed in the toolbar.
+     * @param sessionService
+     *            The session service for managing project selection.
+     * @param components
+     *            Optional components to be added to the toolbar.
+     */
+    public ViewToolbar(final String viewTitle, final SessionService sessionService, final Component... components) {
+        this(viewTitle, sessionService, null, components);
     }
 
     /**
@@ -179,5 +221,58 @@ public final class ViewToolbar extends Composite<Header> implements CProjectList
 
     public void setPageTitle(final String title) {
         this.title.setText(title);
+    }
+    
+    /**
+     * Creates and configures the layout toggle button.
+     */
+    private void createLayoutToggleButton() {
+        if (layoutModeService == null) {
+            // Layout mode service not available, create a placeholder button that's not visible
+            layoutToggleButton = new CLayoutToggleButton(CLayoutMode.VERTICAL, null);
+            layoutToggleButton.setVisible(false);
+            return;
+        }
+        
+        final CLayoutMode currentMode = layoutModeService.getCurrentLayoutMode();
+        layoutToggleButton = new CLayoutToggleButton(currentMode, event -> {
+            LOGGER.info("Layout toggle button clicked, switching layout mode");
+            layoutModeService.toggleLayoutMode();
+            
+            // Update button to reflect new mode
+            final CLayoutMode newMode = layoutModeService.getCurrentLayoutMode();
+            layoutToggleButton.setLayoutMode(newMode);
+        });
+    }
+    
+    /**
+     * Creates a user display component showing the logged-in user's name.
+     * 
+     * @return A Div containing the user information, or null if no user is available
+     */
+    private Div createUserDisplay() {
+        return sessionService.getActiveUser()
+            .map(user -> {
+                final Div userDisplay = new Div();
+                userDisplay.addClassNames(Display.FLEX, AlignItems.CENTER, Gap.SMALL);
+                
+                // Add user icon
+                final var userIcon = new com.vaadin.flow.component.icon.Icon(
+                    com.vaadin.flow.component.icon.VaadinIcon.USER);
+                userIcon.addClassNames(com.vaadin.flow.theme.lumo.LumoUtility.IconSize.SMALL);
+                
+                // Add user name
+                final String userName = user.getName() != null && !user.getName().trim().isEmpty() 
+                    ? user.getName() 
+                    : user.getLogin();
+                final Span userNameSpan = new Span(userName);
+                userNameSpan.addClassNames(FontWeight.NORMAL);
+                
+                userDisplay.add(userIcon, userNameSpan);
+                
+                LOGGER.debug("Created user display for user: {}", userName);
+                return userDisplay;
+            })
+            .orElse(null);
     }
 }

@@ -19,6 +19,7 @@ import com.vaadin.flow.server.VaadinSession;
 import com.vaadin.flow.spring.security.AuthenticationContext;
 
 import tech.derbent.abstracts.interfaces.CProjectListChangeListener;
+import tech.derbent.base.service.CLayoutModeService;
 import tech.derbent.projects.service.CProjectService;
 import tech.derbent.users.service.CUserService;
 
@@ -36,6 +37,9 @@ class SessionServiceProjectListChangeTest {
 
     @Mock
     private CProjectService projectService;
+    
+    @Mock
+    private CLayoutModeService layoutModeService;
 
     @Mock
     private VaadinSession vaadinSession;
@@ -44,7 +48,7 @@ class SessionServiceProjectListChangeTest {
 
     @BeforeEach
     void setUp() {
-        sessionService = new SessionService(authenticationContext, userService, projectService);
+        sessionService = new SessionService(authenticationContext, userService, projectService, layoutModeService);
         
         // Setup security context
         final User testUser = new User("testuser", "password", java.util.Collections.emptyList());

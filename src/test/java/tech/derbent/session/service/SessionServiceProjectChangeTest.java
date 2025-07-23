@@ -12,6 +12,7 @@ import org.mockito.MockitoAnnotations;
 import com.vaadin.flow.spring.security.AuthenticationContext;
 
 import tech.derbent.abstracts.interfaces.CProjectChangeListener;
+import tech.derbent.base.service.CLayoutModeService;
 import tech.derbent.projects.domain.CProject;
 import tech.derbent.projects.service.CProjectService;
 import tech.derbent.users.service.CUserService;
@@ -30,13 +31,16 @@ public class SessionServiceProjectChangeTest {
 
     @Mock
     private CProjectService projectService;
+    
+    @Mock
+    private CLayoutModeService layoutModeService;
 
     private SessionService sessionService;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        sessionService = new SessionService(authenticationContext, userService, projectService);
+        sessionService = new SessionService(authenticationContext, userService, projectService, layoutModeService);
     }
 
     @Test

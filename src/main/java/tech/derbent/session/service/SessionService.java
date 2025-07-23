@@ -16,6 +16,7 @@ import com.vaadin.flow.spring.security.AuthenticationContext;
 
 import tech.derbent.abstracts.interfaces.CProjectChangeListener;
 import tech.derbent.abstracts.interfaces.CProjectListChangeListener;
+import tech.derbent.base.service.CLayoutModeService;
 import tech.derbent.projects.domain.CProject;
 import tech.derbent.projects.events.ProjectListChangeEvent;
 import tech.derbent.projects.service.CProjectService;
@@ -39,12 +40,14 @@ public class SessionService {
     private final AuthenticationContext authenticationContext;
     private final CUserService userService;
     private final CProjectService projectService;
+    private final CLayoutModeService layoutModeService;
 
     public SessionService(final AuthenticationContext authenticationContext, final CUserService userService,
-            final CProjectService projectService) {
+            final CProjectService projectService, final CLayoutModeService layoutModeService) {
         this.authenticationContext = authenticationContext;
         this.userService = userService;
         this.projectService = projectService;
+        this.layoutModeService = layoutModeService;
     }
 
     /**
@@ -89,6 +92,9 @@ public class SessionService {
         projectChangeListeners.clear();
         projectListChangeListeners.clear();
         LOGGER.debug("Project change listeners cleared");
+        
+        // Clear layout mode data as well
+        layoutModeService.clearLayoutMode();
     }
 
     /**

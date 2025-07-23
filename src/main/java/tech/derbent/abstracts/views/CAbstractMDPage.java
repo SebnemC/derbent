@@ -4,6 +4,8 @@ import java.util.Optional;
 
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 
+import com.vaadin.flow.component.AttachEvent;
+import com.vaadin.flow.component.DetachEvent;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.accordion.Accordion;
 import com.vaadin.flow.component.grid.Grid;
@@ -23,11 +25,14 @@ import com.vaadin.flow.spring.data.VaadinSpringDataHelpers;
 
 import jakarta.annotation.PostConstruct;
 import tech.derbent.abstracts.domains.CEntityDB;
+import tech.derbent.abstracts.interfaces.CLayoutModeChangeListener;
 import tech.derbent.abstracts.services.CAbstractService;
+import tech.derbent.base.enums.CLayoutMode;
+import tech.derbent.base.service.CLayoutModeService;
 import tech.derbent.base.ui.dialogs.CConfirmationDialog;
 import tech.derbent.base.ui.dialogs.CWarningDialog;
 
-public abstract class CAbstractMDPage<EntityClass extends CEntityDB> extends CAbstractPage {
+public abstract class CAbstractMDPage<EntityClass extends CEntityDB> extends CAbstractPage implements CLayoutModeChangeListener {
 
 	private static final long serialVersionUID = 1L;
 	protected final Class<EntityClass> entityClass;
@@ -39,6 +44,7 @@ public abstract class CAbstractMDPage<EntityClass extends CEntityDB> extends CAb
 	private final Div detailsTabLayout = new Div();
 	protected EntityClass currentEntity;
 	protected final CAbstractService<EntityClass> entityService;
+	private CLayoutModeService layoutModeService;
 
 	protected CAbstractMDPage(final Class<EntityClass> entityClass, final CAbstractService<EntityClass> entityService) {
 		super();
@@ -68,6 +74,89 @@ public abstract class CAbstractMDPage<EntityClass extends CEntityDB> extends CAb
 		createGridForEntity();
 		// binder = new BeanValidationBinder<>(entityClass
 		add(splitLayout);
+		
+		// Initialize layout mode service (will be set in onAttach)
+		initializeLayoutMode();
+	}
+	
+	/**
+	 * Initializes layout mode functionality.
+	 * Called during construction to set up layout mode handling.
+	 */
+	private void initializeLayoutMode() {
+		// Layout mode service will be injected when component is attached
+		// Initial layout is set to vertical as default
+	}
+	
+	@Override
+	protected void onAttach(final AttachEvent attachEvent) {
+		super.onAttach(attachEvent);
+		
+		// Get layout mode service from Spring context
+		try {
+			layoutModeService = getUI()
+				.map(ui -> ui.getSession())
+				.map(session -> session.getAttribute("spring.application.context"))
+				.map(context -> ((org.springframework.context.ApplicationContext) context)
+					.getBean(CLayoutModeService.class))
+				.orElse(null);
+			
+			if (layoutModeService == null) {
+				// Try alternative approach using static context holder
+				try {
+					final org.springframework.context.ApplicationContext context = 
+						org.springframework.web.context.support.WebApplicationContextUtils
+							.getWebApplicationContext(com.vaadin.flow.server.VaadinServlet.getCurrent().getServletContext());
+					if (context != null) {
+						layoutModeService = context.getBean(CLayoutModeService.class);
+					}
+				} catch (final Exception e) {
+					LOGGER.debug("Could not retrieve layout mode service: {}", e.getMessage());
+				}
+			}
+			
+			if (layoutModeService != null) {
+				layoutModeService.addLayoutModeChangeListener(this);
+				// Apply current layout mode
+				final CLayoutMode currentMode = layoutModeService.getCurrentLayoutMode();
+				onLayoutModeChanged(currentMode);
+				LOGGER.debug("Layout mode service connected for {}", getClass().getSimpleName());
+			}
+		} catch (final Exception e) {
+			LOGGER.warn("Failed to initialize layout mode service: {}", e.getMessage());
+		}
+	}
+	
+	@Override
+	protected void onDetach(final DetachEvent detachEvent) {
+		super.onDetach(detachEvent);
+		
+		// Unregister from layout mode service
+		if (layoutModeService != null) {
+			layoutModeService.removeLayoutModeChangeListener(this);
+			LOGGER.debug("Layout mode listener unregistered for {}", getClass().getSimpleName());
+		}
+	}
+	
+	@Override
+	public void onLayoutModeChanged(final CLayoutMode newMode) {
+		LOGGER.info("Layout mode changed to {} for {}", newMode, getClass().getSimpleName());
+		
+		if (splitLayout != null) {
+			getUI().ifPresent(ui -> ui.access(() -> {
+				switch (newMode) {
+					case HORIZONTAL:
+						splitLayout.setOrientation(SplitLayout.Orientation.HORIZONTAL);
+						break;
+					case VERTICAL:
+					default:
+						splitLayout.setOrientation(SplitLayout.Orientation.VERTICAL);
+						break;
+				}
+				LOGGER.debug("Split layout orientation updated to {} for {}", 
+					splitLayout.getOrientation(), getClass().getSimpleName());
+			}));
+		}
 	}
 
 	@Override
