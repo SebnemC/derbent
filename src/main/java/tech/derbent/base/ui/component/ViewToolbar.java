@@ -267,8 +267,7 @@ public final class ViewToolbar extends Composite<Header> implements CProjectList
                 userDisplay.addClassNames(Display.FLEX, AlignItems.CENTER, Gap.SMALL);
                 
                 // Add user icon
-                final var userIcon = new com.vaadin.flow.component.icon.Icon(
-                    com.vaadin.flow.component.icon.VaadinIcon.USER);
+                final var userIcon = new com.vaadin.flow.component.icon.Icon("vaadin:smiley-o");
                 userIcon.addClassNames(com.vaadin.flow.theme.lumo.LumoUtility.IconSize.SMALL);
                 
                 // Add user name
