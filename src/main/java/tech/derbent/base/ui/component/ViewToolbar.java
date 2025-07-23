@@ -99,8 +99,16 @@ public final class ViewToolbar extends Composite<Header> implements CProjectList
         // Create layout toggle button
         createLayoutToggleButton();
 
+        // Create project selector with spacing after the title
+        final var projectSelector = new Div(new Span("Active Project:"), projectComboBox);
+        projectSelector.addClassNames(Display.FLEX, AlignItems.CENTER, Gap.SMALL, Margin.Left.LARGE);
+        
+        // Create the left side container with title and project selector
+        final var leftContainer = new Div(toggleAndTitle, projectSelector);
+        leftContainer.addClassNames(Display.FLEX, AlignItems.CENTER, Gap.LARGE);
+        
         // add them to the content of the header
-        getContent().add(toggleAndTitle);
+        getContent().add(leftContainer);
 
         // add more if passed as a parameter
         if (components.length > 0) {
@@ -111,9 +119,9 @@ public final class ViewToolbar extends Composite<Header> implements CProjectList
             getContent().add(actions);
         }
 
-        // Create right side container with user info, layout toggle, and project selector
+        // Create right side container with user info and layout toggle (right-aligned)
         final var rightContainer = new Div();
-        rightContainer.addClassNames(Display.FLEX, AlignItems.CENTER, Gap.MEDIUM);
+        rightContainer.addClassNames(Display.FLEX, AlignItems.CENTER, Gap.MEDIUM, Margin.Left.AUTO);
         
         // Add user display
         final var userDisplay = createUserDisplay();
@@ -123,11 +131,6 @@ public final class ViewToolbar extends Composite<Header> implements CProjectList
         
         // Add layout toggle button
         rightContainer.add(layoutToggleButton);
-        
-        // Add project selector
-        final var projectSelector = new Div(new Span("Active Project:"), projectComboBox);
-        projectSelector.addClassNames(Display.FLEX, AlignItems.CENTER, Gap.SMALL);
-        rightContainer.add(projectSelector);
         
         getContent().add(rightContainer);
 
