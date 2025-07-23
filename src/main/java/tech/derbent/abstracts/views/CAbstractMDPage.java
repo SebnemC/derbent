@@ -26,6 +26,7 @@ import tech.derbent.abstracts.domains.CEntityDB;
 import tech.derbent.abstracts.services.CAbstractService;
 import tech.derbent.base.ui.dialogs.CConfirmationDialog;
 import tech.derbent.base.ui.dialogs.CWarningDialog;
+import tech.derbent.layout.service.LayoutStateService;
 
 public abstract class CAbstractMDPage<EntityClass extends CEntityDB> extends CAbstractPage {
 
@@ -39,17 +40,25 @@ public abstract class CAbstractMDPage<EntityClass extends CEntityDB> extends CAb
 	private final Div detailsTabLayout = new Div();
 	protected EntityClass currentEntity;
 	protected final CAbstractService<EntityClass> entityService;
+	protected final LayoutStateService layoutStateService;
 
 	protected CAbstractMDPage(final Class<EntityClass> entityClass, final CAbstractService<EntityClass> entityService) {
+		this(entityClass, entityService, null);
+	}
+
+	protected CAbstractMDPage(final Class<EntityClass> entityClass, final CAbstractService<EntityClass> entityService, 
+			final LayoutStateService layoutStateService) {
 		super();
 		this.entityClass = entityClass;
 		this.entityService = entityService;
+		this.layoutStateService = layoutStateService;
 		binder = new BeanValidationBinder<>(entityClass);
 		addClassNames("md-page");
 		setSizeFull();
-		// create a split layout for the main content, vertical split
+		// create a split layout for the main content with dynamic orientation
 		splitLayout.setSizeFull();
-		splitLayout.setOrientation(SplitLayout.Orientation.VERTICAL);
+		// Set orientation based on layout state service
+		updateLayoutOrientation();
 		// Create UI
 		createGridLayout();
 		detailsTabLayout.setClassName("details-tab-layout");
@@ -258,6 +267,17 @@ public abstract class CAbstractMDPage<EntityClass extends CEntityDB> extends CAb
 	}
 
 	public void setCurrentEntity(final EntityClass currentEntity) { this.currentEntity = currentEntity; }
+
+	/**
+	 * Updates the split layout orientation based on the current layout state.
+	 */
+	private void updateLayoutOrientation() {
+		if (layoutStateService != null && layoutStateService.isHorizontalMode()) {
+			splitLayout.setOrientation(SplitLayout.Orientation.HORIZONTAL);
+		} else {
+			splitLayout.setOrientation(SplitLayout.Orientation.VERTICAL);
+		}
+	}
 
 	/**
 	 * Sets up the toolbar for the page.

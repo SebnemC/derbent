@@ -13,6 +13,7 @@ import com.vaadin.flow.router.Route;
 import jakarta.annotation.security.PermitAll;
 import tech.derbent.abstracts.annotations.CEntityFormBuilder;
 import tech.derbent.abstracts.views.CProjectAwareMDPage;
+import tech.derbent.layout.service.LayoutStateService;
 import tech.derbent.meetings.domain.CMeeting;
 import tech.derbent.meetings.service.CMeetingService;
 import tech.derbent.meetings.service.CMeetingTypeService;
@@ -35,8 +36,9 @@ public class CMeetingsView extends CProjectAwareMDPage<CMeeting> {
     private MultiSelectComboBox<CUser> participantsField;
 
     public CMeetingsView(final CMeetingService entityService, final SessionService sessionService, 
-                        final CMeetingTypeService meetingTypeService, final CUserService userService) {
-        super(CMeeting.class, entityService, sessionService);
+                        final CMeetingTypeService meetingTypeService, final CUserService userService,
+                        final LayoutStateService layoutStateService) {
+        super(CMeeting.class, entityService, sessionService, layoutStateService);
         addClassNames("meetings-view");
         this.meetingTypeService = meetingTypeService;
         this.userService = userService;

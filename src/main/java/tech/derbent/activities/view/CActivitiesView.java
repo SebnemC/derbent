@@ -14,6 +14,7 @@ import tech.derbent.abstracts.views.CProjectAwareMDPage;
 import tech.derbent.activities.domain.CActivity;
 import tech.derbent.activities.service.CActivityService;
 import tech.derbent.activities.service.CActivityTypeService;
+import tech.derbent.layout.service.LayoutStateService;
 import tech.derbent.projects.domain.CProject;
 import tech.derbent.session.service.SessionService;
 
@@ -28,8 +29,9 @@ public class CActivitiesView extends CProjectAwareMDPage<CActivity> {
 	private final String ENTITY_ROUTE_TEMPLATE_EDIT = "activities/%s/edit";
 	private final CActivityTypeService activityTypeService;
 
-	public CActivitiesView(final CActivityService entityService, final SessionService sessionService, final CActivityTypeService activityTypeService) {
-		super(CActivity.class, entityService, sessionService);
+	public CActivitiesView(final CActivityService entityService, final SessionService sessionService, 
+			final CActivityTypeService activityTypeService, final LayoutStateService layoutStateService) {
+		super(CActivity.class, entityService, sessionService, layoutStateService);
 		addClassNames("activities-view");
 		this.activityTypeService = activityTypeService;
 		// createDetailsLayout();

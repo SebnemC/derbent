@@ -12,6 +12,7 @@ import com.vaadin.flow.spring.data.VaadinSpringDataHelpers;
 import tech.derbent.abstracts.domains.CEntityDB;
 import tech.derbent.abstracts.interfaces.CProjectChangeListener;
 import tech.derbent.abstracts.services.CAbstractService;
+import tech.derbent.layout.service.LayoutStateService;
 import tech.derbent.projects.domain.CProject;
 import tech.derbent.session.service.SessionService;
 
@@ -27,7 +28,13 @@ public abstract class CProjectAwareMDPage<EntityClass extends CEntityDB> extends
 
     protected CProjectAwareMDPage(final Class<EntityClass> entityClass,
             final CAbstractService<EntityClass> entityService, final SessionService sessionService) {
-        super(entityClass, entityService);
+        this(entityClass, entityService, sessionService, null);
+    }
+
+    protected CProjectAwareMDPage(final Class<EntityClass> entityClass,
+            final CAbstractService<EntityClass> entityService, final SessionService sessionService,
+            final LayoutStateService layoutStateService) {
+        super(entityClass, entityService, layoutStateService);
         this.sessionService = sessionService;
         // Now that sessionService is set, we can populate the grid
         refreshProjectAwareGrid();
