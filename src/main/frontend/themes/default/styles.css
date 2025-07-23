@@ -230,24 +230,399 @@
    COMPONENT IMPLEMENTATIONS
    ============================================================================ */
 
-/* Details tab layout using new variable system */
-.details-tab-layout {
-    background-color: var(--derbent-bg-warm);
-    width: 100%;
-    border-radius: var(--derbent-radius-card);
-    border: 1px solid var(--derbent-border-light);
-    font-size: var(--derbent-text-xl);
-    font-weight: var(--derbent-font-bold);
+/* ============================================================================
+   APP LAYOUT & NAVIGATION STYLING
+   ============================================================================ */
+
+/* Main AppLayout container */
+vaadin-app-layout {
     font-family: var(--derbent-font-sans);
-    color: var(--derbent-text-primary);
-    padding: var(--derbent-space-4);
+    background-color: var(--derbent-bg-primary);
+}
+
+/* AppLayout drawer */
+vaadin-app-layout [slot="drawer"] {
+    background-color: var(--derbent-bg-secondary);
+    border-right: 1px solid var(--derbent-border-light);
+    box-shadow: var(--derbent-shadow-lg);
+}
+
+/* AppLayout navbar */
+vaadin-app-layout [slot="navbar"] {
+    background-color: var(--derbent-bg-primary);
+    border-bottom: 1px solid var(--derbent-border-light);
+    box-shadow: var(--derbent-shadow-xs);
+    padding: 0 var(--derbent-space-4);
+}
+
+/* SideNav component styling */
+vaadin-side-nav {
+    font-family: var(--derbent-font-sans);
+    background-color: transparent;
+}
+
+/* SideNav items */
+vaadin-side-nav-item {
+    border-radius: var(--derbent-radius-md);
+    margin: var(--derbent-space-1) 0;
+    transition: all 0.2s ease-in-out;
+}
+
+vaadin-side-nav-item::part(link) {
+    color: var(--derbent-text-secondary);
+    font-weight: var(--derbent-font-medium);
+    padding: var(--derbent-space-3) var(--derbent-space-4);
+    border-radius: var(--derbent-radius-md);
+    transition: all 0.2s ease-in-out;
+}
+
+vaadin-side-nav-item::part(link):hover {
+    background-color: var(--derbent-bg-accent);
+    color: var(--derbent-primary-600);
+}
+
+/* Selected/active SideNav item */
+vaadin-side-nav-item[current]::part(link) {
+    background-color: var(--derbent-primary-100);
+    color: var(--derbent-primary-700);
+    font-weight: var(--derbent-font-semibold);
+}
+
+/* SideNav item icons */
+vaadin-side-nav-item::part(icon) {
+    color: var(--derbent-text-muted);
+    margin-right: var(--derbent-space-3);
+}
+
+vaadin-side-nav-item:hover::part(icon),
+vaadin-side-nav-item[current]::part(icon) {
+    color: var(--derbent-primary-600);
+}
+
+/* SideNav parent items */
+vaadin-side-nav-item[parent] {
+    font-weight: var(--derbent-font-semibold);
+}
+
+vaadin-side-nav-item[parent]::part(toggle-button) {
+    color: var(--derbent-text-muted);
+}
+
+/* ============================================================================
+   BUTTON STYLING
+   ============================================================================ */
+
+/* Base button styling */
+vaadin-button {
+    font-family: var(--derbent-font-sans);
+    font-weight: var(--derbent-font-medium);
+    border-radius: var(--derbent-radius-button);
+    transition: all 0.2s ease-in-out;
+    cursor: pointer;
+    border: 1px solid transparent;
+    box-shadow: var(--derbent-shadow-xs);
+}
+
+/* Primary button */
+vaadin-button[theme~="primary"] {
+    background-color: var(--derbent-btn-primary-bg);
+    color: var(--derbent-btn-primary-text);
+    border-color: var(--derbent-btn-primary-bg);
+}
+
+vaadin-button[theme~="primary"]:hover:not([disabled]) {
+    background-color: var(--derbent-btn-primary-hover);
+    border-color: var(--derbent-btn-primary-hover);
+    box-shadow: var(--derbent-shadow-md);
+    transform: translateY(-1px);
+}
+
+vaadin-button[theme~="primary"]:active:not([disabled]) {
+    background-color: var(--derbent-btn-primary-active);
+    border-color: var(--derbent-btn-primary-active);
+    transform: translateY(0);
     box-shadow: var(--derbent-shadow-sm);
 }
 
-/* Vaadin scroller with enhanced styling */
-vaadin-scroller {
-    width: 100%;
+/* Secondary button */
+vaadin-button[theme~="secondary"] {
+    background-color: var(--derbent-btn-secondary-bg);
+    color: var(--derbent-btn-secondary-text);
+    border-color: var(--derbent-btn-secondary-bg);
+}
+
+vaadin-button[theme~="secondary"]:hover:not([disabled]) {
+    background-color: var(--derbent-btn-secondary-hover);
+    border-color: var(--derbent-btn-secondary-hover);
+    box-shadow: var(--derbent-shadow-md);
+    transform: translateY(-1px);
+}
+
+vaadin-button[theme~="secondary"]:active:not([disabled]) {
+    background-color: var(--derbent-btn-secondary-active);
+    border-color: var(--derbent-btn-secondary-active);
+    transform: translateY(0);
+}
+
+/* Tertiary button */
+vaadin-button[theme~="tertiary"] {
+    background-color: transparent;
+    color: var(--derbent-btn-ghost-text);
+    border-color: transparent;
+    box-shadow: none;
+}
+
+vaadin-button[theme~="tertiary"]:hover:not([disabled]) {
+    background-color: var(--derbent-btn-ghost-hover-bg);
+    color: var(--derbent-primary-700);
+    border-color: transparent;
+}
+
+/* Error/Danger button */
+vaadin-button[theme~="error"] {
+    background-color: var(--derbent-error-500);
+    color: var(--derbent-text-on-dark);
+    border-color: var(--derbent-error-500);
+}
+
+vaadin-button[theme~="error"]:hover:not([disabled]) {
+    background-color: var(--derbent-error-600);
+    border-color: var(--derbent-error-600);
+    box-shadow: var(--derbent-shadow-md);
+    transform: translateY(-1px);
+}
+
+/* Success button */
+vaadin-button[theme~="success"] {
+    background-color: var(--derbent-success-500);
+    color: var(--derbent-text-on-dark);
+    border-color: var(--derbent-success-500);
+}
+
+vaadin-button[theme~="success"]:hover:not([disabled]) {
+    background-color: var(--derbent-success-600);
+    border-color: var(--derbent-success-600);
+    box-shadow: var(--derbent-shadow-md);
+    transform: translateY(-1px);
+}
+
+/* Outline buttons */
+vaadin-button[theme~="tertiary-inline"] {
+    background-color: transparent;
+    color: var(--derbent-btn-outline-text);
+    border-color: var(--derbent-btn-outline-border);
+}
+
+vaadin-button[theme~="tertiary-inline"]:hover:not([disabled]) {
+    background-color: var(--derbent-btn-outline-hover-bg);
+    color: var(--derbent-primary-700);
+    border-color: var(--derbent-primary-600);
+}
+
+/* Disabled button state */
+vaadin-button[disabled] {
+    background-color: var(--derbent-neutral-200) !important;
+    color: var(--derbent-text-disabled) !important;
+    border-color: var(--derbent-neutral-200) !important;
+    cursor: not-allowed;
+    opacity: 0.6;
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+/* ============================================================================
+   FORM COMPONENT STYLING
+   ============================================================================ */
+
+/* TextField components */
+vaadin-text-field,
+vaadin-email-field,
+vaadin-password-field,
+vaadin-number-field,
+vaadin-text-area {
+    font-family: var(--derbent-font-sans);
+}
+
+vaadin-text-field::part(input-field),
+vaadin-email-field::part(input-field),
+vaadin-password-field::part(input-field),
+vaadin-number-field::part(input-field),
+vaadin-text-area::part(input-field) {
     background-color: var(--derbent-bg-primary);
+    border: 1px solid var(--derbent-border-medium);
+    border-radius: var(--derbent-radius-input);
+    color: var(--derbent-text-primary);
+    font-size: var(--derbent-text-base);
+    padding: var(--derbent-space-3) var(--derbent-space-4);
+    transition: all 0.2s ease-in-out;
+}
+
+vaadin-text-field:hover::part(input-field),
+vaadin-email-field:hover::part(input-field),
+vaadin-password-field:hover::part(input-field),
+vaadin-number-field:hover::part(input-field),
+vaadin-text-area:hover::part(input-field) {
+    border-color: var(--derbent-primary-300);
+    box-shadow: var(--derbent-shadow-sm);
+}
+
+vaadin-text-field[focused]::part(input-field),
+vaadin-email-field[focused]::part(input-field),
+vaadin-password-field[focused]::part(input-field),
+vaadin-number-field[focused]::part(input-field),
+vaadin-text-area[focused]::part(input-field) {
+    border-color: var(--derbent-primary-500);
+    box-shadow: 0 0 0 3px var(--derbent-primary-100);
+    outline: none;
+}
+
+/* Field labels */
+vaadin-text-field::part(label),
+vaadin-email-field::part(label),
+vaadin-password-field::part(label),
+vaadin-number-field::part(label),
+vaadin-text-area::part(label),
+vaadin-combo-box::part(label) {
+    color: var(--derbent-text-secondary);
+    font-weight: var(--derbent-font-medium);
+    font-size: var(--derbent-text-sm);
+}
+
+/* ComboBox styling */
+vaadin-combo-box::part(input-field) {
+    background-color: var(--derbent-bg-primary);
+    border: 1px solid var(--derbent-border-medium);
+    border-radius: var(--derbent-radius-input);
+    color: var(--derbent-text-primary);
+    font-size: var(--derbent-text-base);
+    transition: all 0.2s ease-in-out;
+}
+
+vaadin-combo-box:hover::part(input-field) {
+    border-color: var(--derbent-primary-300);
+    box-shadow: var(--derbent-shadow-sm);
+}
+
+vaadin-combo-box[focused]::part(input-field) {
+    border-color: var(--derbent-primary-500);
+    box-shadow: 0 0 0 3px var(--derbent-primary-100);
+}
+
+/* ComboBox toggle button */
+vaadin-combo-box::part(toggle-button) {
+    color: var(--derbent-text-muted);
+}
+
+/* FormLayout styling */
+vaadin-form-layout {
+    gap: var(--derbent-space-4);
+}
+
+/* ============================================================================
+   GRID COMPONENT STYLING
+   ============================================================================ */
+
+/* Grid container */
+vaadin-grid {
+    font-family: var(--derbent-font-sans);
+    border: 1px solid var(--derbent-border-light);
+    border-radius: var(--derbent-radius-lg);
+    background-color: var(--derbent-bg-primary);
+    overflow: hidden;
+    box-shadow: var(--derbent-shadow-sm);
+}
+
+/* Grid header */
+vaadin-grid::part(header-cell) {
+    background-color: var(--derbent-bg-secondary);
+    color: var(--derbent-text-primary);
+    font-weight: var(--derbent-font-semibold);
+    font-size: var(--derbent-text-sm);
+    border-bottom: 2px solid var(--derbent-border-medium);
+    padding: var(--derbent-space-3) var(--derbent-space-4);
+}
+
+/* Grid body cells */
+vaadin-grid::part(cell) {
+    color: var(--derbent-text-primary);
+    font-size: var(--derbent-text-sm);
+    padding: var(--derbent-space-3) var(--derbent-space-4);
+    border-bottom: 1px solid var(--derbent-border-light);
+}
+
+/* Grid row hover */
+vaadin-grid::part(row):hover {
+    background-color: var(--derbent-bg-accent);
+}
+
+/* Grid selected row */
+vaadin-grid::part(row)[selected] {
+    background-color: var(--derbent-primary-50);
+    color: var(--derbent-primary-900);
+}
+
+/* ============================================================================
+   DIALOG COMPONENT STYLING
+   ============================================================================ */
+
+/* Dialog overlay */
+vaadin-dialog-overlay {
+    font-family: var(--derbent-font-sans);
+}
+
+/* Dialog content */
+vaadin-dialog-overlay::part(content) {
+    background-color: var(--derbent-bg-primary);
+    border-radius: var(--derbent-radius-dialog);
+    box-shadow: var(--derbent-shadow-2xl);
+    border: 1px solid var(--derbent-border-light);
+    padding: var(--derbent-space-6);
+}
+
+/* Dialog header */
+vaadin-dialog-overlay::part(header) {
+    color: var(--derbent-text-primary);
+    font-weight: var(--derbent-font-semibold);
+    font-size: var(--derbent-text-xl);
+    border-bottom: 1px solid var(--derbent-border-light);
+    padding-bottom: var(--derbent-space-4);
+    margin-bottom: var(--derbent-space-4);
+}
+
+/* ============================================================================
+   LOGIN COMPONENT STYLING
+   ============================================================================ */
+
+/* Login overlay */
+vaadin-login-overlay {
+    font-family: var(--derbent-font-sans);
+}
+
+vaadin-login-overlay::part(brand) {
+    background: linear-gradient(135deg, var(--derbent-primary-500), var(--derbent-primary-600));
+    color: var(--derbent-text-on-primary);
+    border-radius: var(--derbent-radius-xl) var(--derbent-radius-xl) 0 0;
+    box-shadow: var(--derbent-shadow-lg);
+}
+
+vaadin-login-overlay::part(form) {
+    background-color: var(--derbent-bg-primary);
+    border-radius: 0 0 var(--derbent-radius-xl) var(--derbent-radius-xl);
+    box-shadow: var(--derbent-shadow-lg);
+    padding: var(--derbent-space-8);
+}
+
+/* ============================================================================
+   ACCORDION COMPONENT STYLING
+   ============================================================================ */
+
+/* Accordion panel */
+vaadin-accordion-panel {
+    border: 1px solid var(--derbent-border-light);
+    border-radius: var(--derbent-radius-lg);
+    margin-bottom: var(--derbent-space-2);
+    overflow: hidden;
+    box-shadow: var(--derbent-shadow-xs);
 }
 
 /* Accordion heading with comprehensive styling */
@@ -269,6 +644,298 @@ vaadin-accordion-heading:hover {
     color: var(--derbent-text-primary);
 }
 
+/* Accordion content */
+vaadin-accordion-panel::part(content) {
+    background-color: var(--derbent-bg-primary);
+    padding: var(--derbent-space-4);
+    color: var(--derbent-text-primary);
+}
+
+/* ============================================================================
+   USER INTERFACE COMPONENTS
+   ============================================================================ */
+
+/* Avatar styling */
+vaadin-avatar {
+    border: 2px solid var(--derbent-border-light);
+    box-shadow: var(--derbent-shadow-sm);
+}
+
+/* MenuBar styling */
+vaadin-menubar {
+    font-family: var(--derbent-font-sans);
+}
+
+vaadin-menubar::part(container) {
+    background-color: transparent;
+}
+
+vaadin-menubar-button {
+    color: var(--derbent-text-secondary);
+    border-radius: var(--derbent-radius-md);
+    transition: all 0.2s ease-in-out;
+}
+
+vaadin-menubar-button:hover {
+    background-color: var(--derbent-bg-accent);
+    color: var(--derbent-text-primary);
+}
+
+/* Notification styling */
+vaadin-notification-overlay::part(content) {
+    background-color: var(--derbent-bg-primary);
+    color: var(--derbent-text-primary);
+    border-radius: var(--derbent-radius-lg);
+    box-shadow: var(--derbent-shadow-lg);
+    border: 1px solid var(--derbent-border-light);
+    font-family: var(--derbent-font-sans);
+    padding: var(--derbent-space-4);
+}
+
+/* Success notification */
+vaadin-notification-overlay[theme~="success"]::part(content) {
+    background-color: var(--derbent-success-50);
+    border-color: var(--derbent-success-200);
+    color: var(--derbent-success-800);
+}
+
+/* Error notification */
+vaadin-notification-overlay[theme~="error"]::part(content) {
+    background-color: var(--derbent-error-50);
+    border-color: var(--derbent-error-200);
+    color: var(--derbent-error-800);
+}
+
+/* Warning notification */
+vaadin-notification-overlay[theme~="warning"]::part(content) {
+    background-color: var(--derbent-warning-50);
+    border-color: var(--derbent-warning-200);
+    color: var(--derbent-warning-800);
+}
+
+/* ============================================================================
+   ADDITIONAL SPECIALIZED COMPONENTS
+   ============================================================================ */
+
+/* Badge/Chip components */
+vaadin-badge {
+    background-color: var(--derbent-neutral-100);
+    color: var(--derbent-neutral-800);
+    border-radius: var(--derbent-radius-full);
+    font-size: var(--derbent-text-xs);
+    font-weight: var(--derbent-font-medium);
+    padding: var(--derbent-space-1) var(--derbent-space-3);
+}
+
+vaadin-badge[theme~="primary"] {
+    background-color: var(--derbent-primary-100);
+    color: var(--derbent-primary-800);
+}
+
+vaadin-badge[theme~="success"] {
+    background-color: var(--derbent-success-100);
+    color: var(--derbent-success-800);
+}
+
+vaadin-badge[theme~="error"] {
+    background-color: var(--derbent-error-100);
+    color: var(--derbent-error-800);
+}
+
+/* Progress Bar */
+vaadin-progress-bar {
+    background-color: var(--derbent-neutral-200);
+    border-radius: var(--derbent-radius-full);
+    height: 8px;
+}
+
+vaadin-progress-bar::part(bar) {
+    background-color: var(--derbent-primary-500);
+    border-radius: var(--derbent-radius-full);
+}
+
+/* Tabs styling */
+vaadin-tabs {
+    background-color: var(--derbent-bg-secondary);
+    border-bottom: 1px solid var(--derbent-border-light);
+}
+
+vaadin-tab {
+    color: var(--derbent-text-secondary);
+    font-weight: var(--derbent-font-medium);
+    padding: var(--derbent-space-3) var(--derbent-space-4);
+    border-radius: var(--derbent-radius-tab) var(--derbent-radius-tab) 0 0;
+    transition: all 0.2s ease-in-out;
+}
+
+vaadin-tab:hover {
+    background-color: var(--derbent-bg-accent);
+    color: var(--derbent-text-primary);
+}
+
+vaadin-tab[selected] {
+    background-color: var(--derbent-bg-primary);
+    border-bottom: 2px solid var(--derbent-primary-500);
+    color: var(--derbent-primary-700);
+    font-weight: var(--derbent-font-semibold);
+}
+
+/* Details/Disclosure components */
+vaadin-details {
+    border: 1px solid var(--derbent-border-light);
+    border-radius: var(--derbent-radius-lg);
+    background-color: var(--derbent-bg-primary);
+    margin-bottom: var(--derbent-space-3);
+}
+
+vaadin-details::part(summary) {
+    background-color: var(--derbent-bg-secondary);
+    padding: var(--derbent-space-4);
+    font-weight: var(--derbent-font-semibold);
+    color: var(--derbent-text-primary);
+    border-radius: var(--derbent-radius-lg) var(--derbent-radius-lg) 0 0;
+    transition: background-color 0.2s ease-in-out;
+}
+
+vaadin-details::part(summary):hover {
+    background-color: var(--derbent-bg-accent);
+}
+
+vaadin-details::part(content) {
+    padding: var(--derbent-space-4);
+    color: var(--derbent-text-primary);
+}
+
+/* Split Layout */
+vaadin-split-layout {
+    background-color: var(--derbent-bg-primary);
+}
+
+vaadin-split-layout::part(splitter) {
+    background-color: var(--derbent-border-medium);
+    width: 2px;
+}
+
+/* Context Menu */
+vaadin-context-menu-overlay::part(content) {
+    background-color: var(--derbent-bg-primary);
+    border: 1px solid var(--derbent-border-light);
+    border-radius: var(--derbent-radius-lg);
+    box-shadow: var(--derbent-shadow-xl);
+    padding: var(--derbent-space-2);
+}
+
+vaadin-context-menu-item {
+    color: var(--derbent-text-primary);
+    padding: var(--derbent-space-2) var(--derbent-space-4);
+    border-radius: var(--derbent-radius-md);
+    transition: background-color 0.2s ease-in-out;
+}
+
+vaadin-context-menu-item:hover {
+    background-color: var(--derbent-bg-accent);
+}
+
+/* Upload component */
+vaadin-upload {
+    border: 2px dashed var(--derbent-border-medium);
+    border-radius: var(--derbent-radius-lg);
+    background-color: var(--derbent-bg-secondary);
+    padding: var(--derbent-space-6);
+    transition: all 0.2s ease-in-out;
+}
+
+vaadin-upload:hover {
+    border-color: var(--derbent-primary-300);
+    background-color: var(--derbent-bg-accent);
+}
+
+vaadin-upload::part(primary-buttons) {
+    color: var(--derbent-primary-600);
+    font-weight: var(--derbent-font-medium);
+}
+
+/* Checkbox and Radio styling */
+vaadin-checkbox,
+vaadin-radio-button {
+    color: var(--derbent-text-primary);
+    font-family: var(--derbent-font-sans);
+}
+
+vaadin-checkbox::part(checkbox),
+vaadin-radio-button::part(radio) {
+    border: 2px solid var(--derbent-border-medium);
+    background-color: var(--derbent-bg-primary);
+}
+
+vaadin-checkbox[checked]::part(checkbox),
+vaadin-radio-button[checked]::part(radio) {
+    background-color: var(--derbent-primary-500);
+    border-color: var(--derbent-primary-500);
+}
+
+/* Select component */
+vaadin-select::part(input-field) {
+    background-color: var(--derbent-bg-primary);
+    border: 1px solid var(--derbent-border-medium);
+    border-radius: var(--derbent-radius-input);
+    color: var(--derbent-text-primary);
+    transition: all 0.2s ease-in-out;
+}
+
+vaadin-select:hover::part(input-field) {
+    border-color: var(--derbent-primary-300);
+    box-shadow: var(--derbent-shadow-sm);
+}
+
+vaadin-select[focused]::part(input-field) {
+    border-color: var(--derbent-primary-500);
+    box-shadow: 0 0 0 3px var(--derbent-primary-100);
+}
+
+/* Date Picker */
+vaadin-date-picker::part(input-field) {
+    background-color: var(--derbent-bg-primary);
+    border: 1px solid var(--derbent-border-medium);
+    border-radius: var(--derbent-radius-input);
+    color: var(--derbent-text-primary);
+    transition: all 0.2s ease-in-out;
+}
+
+vaadin-date-picker:hover::part(input-field) {
+    border-color: var(--derbent-primary-300);
+    box-shadow: var(--derbent-shadow-sm);
+}
+
+vaadin-date-picker[focused]::part(input-field) {
+    border-color: var(--derbent-primary-500);
+    box-shadow: 0 0 0 3px var(--derbent-primary-100);
+}
+
+/* ============================================================================
+   LEGACY COMPONENT IMPLEMENTATIONS
+   ============================================================================ */
+
+/* Details tab layout using new variable system */
+.details-tab-layout {
+    background-color: var(--derbent-bg-warm);
+    width: 100%;
+    border-radius: var(--derbent-radius-card);
+    border: 1px solid var(--derbent-border-light);
+    font-size: var(--derbent-text-xl);
+    font-weight: var(--derbent-font-bold);
+    font-family: var(--derbent-font-sans);
+    color: var(--derbent-text-primary);
+    padding: var(--derbent-space-4);
+    box-shadow: var(--derbent-shadow-sm);
+}
+
+/* Vaadin scroller with enhanced styling */
+vaadin-scroller {
+    width: 100%;
+    background-color: var(--derbent-bg-primary);
+}
+
 /* ============================================================================
    UTILITY CLASSES
    ============================================================================ */
@@ -277,15 +944,184 @@ vaadin-accordion-heading:hover {
 .derbent-text-primary { color: var(--derbent-text-primary); }
 .derbent-text-secondary { color: var(--derbent-text-secondary); }
 .derbent-text-muted { color: var(--derbent-text-muted); }
+.derbent-text-disabled { color: var(--derbent-text-disabled); }
+.derbent-text-on-primary { color: var(--derbent-text-on-primary); }
+.derbent-text-on-dark { color: var(--derbent-text-on-dark); }
+
+/* Text size utilities */
+.derbent-text-xs { font-size: var(--derbent-text-xs); }
+.derbent-text-sm { font-size: var(--derbent-text-sm); }
+.derbent-text-base { font-size: var(--derbent-text-base); }
+.derbent-text-lg { font-size: var(--derbent-text-lg); }
+.derbent-text-xl { font-size: var(--derbent-text-xl); }
+.derbent-text-2xl { font-size: var(--derbent-text-2xl); }
+
+/* Font weight utilities */
+.derbent-font-light { font-weight: var(--derbent-font-light); }
+.derbent-font-normal { font-weight: var(--derbent-font-normal); }
+.derbent-font-medium { font-weight: var(--derbent-font-medium); }
+.derbent-font-semibold { font-weight: var(--derbent-font-semibold); }
+.derbent-font-bold { font-weight: var(--derbent-font-bold); }
 
 /* Background utilities */
 .derbent-bg-primary { background-color: var(--derbent-bg-primary); }
 .derbent-bg-secondary { background-color: var(--derbent-bg-secondary); }
+.derbent-bg-tertiary { background-color: var(--derbent-bg-tertiary); }
 .derbent-bg-accent { background-color: var(--derbent-bg-accent); }
 .derbent-bg-warm { background-color: var(--derbent-bg-warm); }
+.derbent-bg-success { background-color: var(--derbent-bg-success); }
+.derbent-bg-warning { background-color: var(--derbent-bg-warning); }
+.derbent-bg-error { background-color: var(--derbent-bg-error); }
+
+/* Border utilities */
+.derbent-border { border: 1px solid var(--derbent-border-light); }
+.derbent-border-medium { border: 1px solid var(--derbent-border-medium); }
+.derbent-border-strong { border: 1px solid var(--derbent-border-strong); }
+.derbent-border-primary { border: 1px solid var(--derbent-border-primary); }
 
 /* Border radius utilities */
+.derbent-rounded-none { border-radius: var(--derbent-radius-none); }
+.derbent-rounded-xs { border-radius: var(--derbent-radius-xs); }
 .derbent-rounded-sm { border-radius: var(--derbent-radius-sm); }
 .derbent-rounded-md { border-radius: var(--derbent-radius-md); }
 .derbent-rounded-lg { border-radius: var(--derbent-radius-lg); }
 .derbent-rounded-xl { border-radius: var(--derbent-radius-xl); }
+.derbent-rounded-2xl { border-radius: var(--derbent-radius-2xl); }
+.derbent-rounded-full { border-radius: var(--derbent-radius-full); }
+
+/* Shadow utilities */
+.derbent-shadow-xs { box-shadow: var(--derbent-shadow-xs); }
+.derbent-shadow-sm { box-shadow: var(--derbent-shadow-sm); }
+.derbent-shadow-md { box-shadow: var(--derbent-shadow-md); }
+.derbent-shadow-lg { box-shadow: var(--derbent-shadow-lg); }
+.derbent-shadow-xl { box-shadow: var(--derbent-shadow-xl); }
+.derbent-shadow-none { box-shadow: none; }
+
+/* Spacing utilities - Padding */
+.derbent-p-0 { padding: var(--derbent-space-0); }
+.derbent-p-1 { padding: var(--derbent-space-1); }
+.derbent-p-2 { padding: var(--derbent-space-2); }
+.derbent-p-3 { padding: var(--derbent-space-3); }
+.derbent-p-4 { padding: var(--derbent-space-4); }
+.derbent-p-5 { padding: var(--derbent-space-5); }
+.derbent-p-6 { padding: var(--derbent-space-6); }
+.derbent-p-8 { padding: var(--derbent-space-8); }
+
+/* Spacing utilities - Margin */
+.derbent-m-0 { margin: var(--derbent-space-0); }
+.derbent-m-1 { margin: var(--derbent-space-1); }
+.derbent-m-2 { margin: var(--derbent-space-2); }
+.derbent-m-3 { margin: var(--derbent-space-3); }
+.derbent-m-4 { margin: var(--derbent-space-4); }
+.derbent-m-5 { margin: var(--derbent-space-5); }
+.derbent-m-6 { margin: var(--derbent-space-6); }
+.derbent-m-8 { margin: var(--derbent-space-8); }
+
+/* Layout utilities */
+.derbent-flex { display: flex; }
+.derbent-inline-flex { display: inline-flex; }
+.derbent-block { display: block; }
+.derbent-inline-block { display: inline-block; }
+.derbent-grid { display: grid; }
+.derbent-hidden { display: none; }
+
+.derbent-items-center { align-items: center; }
+.derbent-items-start { align-items: flex-start; }
+.derbent-items-end { align-items: flex-end; }
+
+.derbent-justify-center { justify-content: center; }
+.derbent-justify-start { justify-content: flex-start; }
+.derbent-justify-end { justify-content: flex-end; }
+.derbent-justify-between { justify-content: space-between; }
+
+.derbent-flex-col { flex-direction: column; }
+.derbent-flex-row { flex-direction: row; }
+
+.derbent-gap-1 { gap: var(--derbent-space-1); }
+.derbent-gap-2 { gap: var(--derbent-space-2); }
+.derbent-gap-3 { gap: var(--derbent-space-3); }
+.derbent-gap-4 { gap: var(--derbent-space-4); }
+.derbent-gap-6 { gap: var(--derbent-space-6); }
+
+/* Width utilities */
+.derbent-w-full { width: 100%; }
+.derbent-w-auto { width: auto; }
+.derbent-h-full { height: 100%; }
+.derbent-h-auto { height: auto; }
+
+/* ============================================================================
+   RESPONSIVE DESIGN
+   ============================================================================ */
+
+/* Mobile-first responsive breakpoints */
+@media (max-width: 768px) {
+    /* Mobile adjustments for AppLayout */
+    vaadin-app-layout [slot="drawer"] {
+        min-width: 250px;
+    }
+    
+    /* Smaller text on mobile */
+    vaadin-side-nav-item::part(link) {
+        font-size: var(--derbent-text-sm);
+        padding: var(--derbent-space-2) var(--derbent-space-3);
+    }
+    
+    /* Adjust button padding on mobile */
+    vaadin-button {
+        padding: var(--derbent-space-2) var(--derbent-space-3);
+        font-size: var(--derbent-text-sm);
+    }
+    
+    /* Stack form elements vertically on mobile */
+    vaadin-form-layout {
+        flex-direction: column;
+    }
+    
+    /* Adjust grid for mobile */
+    vaadin-grid::part(cell),
+    vaadin-grid::part(header-cell) {
+        padding: var(--derbent-space-2) var(--derbent-space-3);
+        font-size: var(--derbent-text-xs);
+    }
+}
+
+@media (max-width: 480px) {
+    /* Very small screen adjustments */
+    .details-tab-layout {
+        padding: var(--derbent-space-3);
+        font-size: var(--derbent-text-lg);
+    }
+    
+    vaadin-dialog-overlay::part(content) {
+        padding: var(--derbent-space-4);
+        margin: var(--derbent-space-2);
+        border-radius: var(--derbent-radius-md);
+    }
+}
+
+/* ============================================================================
+   ACCESSIBILITY ENHANCEMENTS
+   ============================================================================ */
+
+/* Focus outlines for accessibility */
+*:focus-visible {
+    outline: 2px solid var(--derbent-primary-500);
+    outline-offset: 2px;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    :root {
+        --derbent-border-light: var(--derbent-neutral-400);
+        --derbent-border-medium: var(--derbent-neutral-500);
+        --derbent-text-muted: var(--derbent-neutral-700);
+    }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        transition: none !important;
+        animation: none !important;
+    }
+}

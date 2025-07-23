@@ -4,6 +4,8 @@
     "color",
     "spacing",
     "badge",
-    "utility"
+    "utility",
+    "sizing",
+    "style"
   ]
 }
