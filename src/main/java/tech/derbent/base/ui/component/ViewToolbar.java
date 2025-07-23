@@ -231,12 +231,14 @@ public final class ViewToolbar extends Composite<Header> implements CProjectList
      */
     private void createLayoutToggleButton() {
         if (layoutModeService == null) {
+            LOGGER.warn("Layout mode service is null, creating invisible layout toggle button");
             // Layout mode service not available, create a placeholder button that's not visible
             layoutToggleButton = new CLayoutToggleButton(CLayoutMode.VERTICAL, null);
             layoutToggleButton.setVisible(false);
             return;
         }
         
+        LOGGER.info("Creating layout toggle button with service available");
         final CLayoutMode currentMode = layoutModeService.getCurrentLayoutMode();
         layoutToggleButton = new CLayoutToggleButton(currentMode, event -> {
             LOGGER.info("Layout toggle button clicked, switching layout mode");
@@ -246,6 +248,11 @@ public final class ViewToolbar extends Composite<Header> implements CProjectList
             final CLayoutMode newMode = layoutModeService.getCurrentLayoutMode();
             layoutToggleButton.setLayoutMode(newMode);
         });
+        
+        // Ensure button is visible
+        layoutToggleButton.setVisible(true);
+        
+        LOGGER.info("Layout toggle button created with mode: {} and visible: {}", currentMode, layoutToggleButton.isVisible());
     }
     
     /**

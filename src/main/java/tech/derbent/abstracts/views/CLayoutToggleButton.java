@@ -78,11 +78,16 @@ public class CLayoutToggleButton extends Button {
      */
     private void updateButtonAppearance() {
         if (currentMode == null) {
+            LOGGER.warn("Current mode is null, cannot update button appearance");
             return;
         }
         
+        LOGGER.debug("Updating button appearance for mode: {}", currentMode);
+        
         // Set icon based on current mode
-        final Icon icon = new Icon(currentMode.getIconName());
+        final String iconName = currentMode.getIconName();
+        LOGGER.debug("Setting icon: {}", iconName);
+        final Icon icon = new Icon(iconName);
         setIcon(icon);
         
         // Set tooltip to indicate what clicking will do (switch to the other mode)
@@ -93,6 +98,6 @@ public class CLayoutToggleButton extends Button {
         // Set aria-label for accessibility
         getElement().setAttribute("aria-label", tooltipText);
         
-        LOGGER.debug("Updated button appearance for mode: {} with tooltip: {}", currentMode, tooltipText);
+        LOGGER.debug("Updated button appearance for mode: {} with icon: {} and tooltip: {}", currentMode, iconName, tooltipText);
     }
 }
