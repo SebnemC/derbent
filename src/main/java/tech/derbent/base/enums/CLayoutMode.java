@@ -10,14 +10,14 @@ package tech.derbent.base.enums;
  */
 public enum CLayoutMode {
     /**
-     * Vertical layout mode - components are stacked vertically (default)
+     * Vertical layout mode - components are stacked vertically (default)  
      */
-    VERTICAL("Vertical View", "vaadin:browser"),
+    VERTICAL("Vertical View", "vaadin:split-v"),
     
     /**
      * Horizontal layout mode - components are split side by side
      */
-    HORIZONTAL("Horizontal View", "vaadin:tablet");
+    HORIZONTAL("Horizontal View", "vaadin:split-h");
     
     private final String displayName;
     private final String iconName;
