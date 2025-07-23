@@ -12,12 +12,12 @@ public enum CLayoutMode {
     /**
      * Vertical layout mode - components are stacked vertically (default)
      */
-    VERTICAL("Vertical View", "vaadin:lines-list"),
+    VERTICAL("Vertical View", "vaadin:browser"),
     
     /**
      * Horizontal layout mode - components are split side by side
      */
-    HORIZONTAL("Horizontal View", "vaadin:columns");
+    HORIZONTAL("Horizontal View", "vaadin:tablet");
     
     private final String displayName;
     private final String iconName;
