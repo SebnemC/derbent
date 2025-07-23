@@ -77,8 +77,8 @@ public final class ViewToolbar extends Composite<Header> implements CProjectList
         LOGGER.debug("Creating ViewToolbar for {}", viewTitle);
         this.sessionService = sessionService;
         this.layoutModeService = layoutModeService;
-        addClassNames(Display.FLEX, FlexDirection.COLUMN, JustifyContent.BETWEEN, AlignItems.STRETCH, Gap.MEDIUM,
-                FlexDirection.Breakpoint.Medium.ROW, AlignItems.Breakpoint.Medium.CENTER);
+        // Set the header to use flex with space-between to properly separate left and right content
+        getContent().addClassNames(Display.FLEX, JustifyContent.BETWEEN, AlignItems.CENTER);
         
         // Add separation line below the toolbar
         getContent().getStyle().set("border-bottom", "1px solid var(--lumo-contrast-20pct)");
@@ -121,7 +121,7 @@ public final class ViewToolbar extends Composite<Header> implements CProjectList
 
         // Create right side container with user info and layout toggle (right-aligned)
         final var rightContainer = new Div();
-        rightContainer.addClassNames(Display.FLEX, AlignItems.CENTER, Gap.MEDIUM, Margin.Left.AUTO);
+        rightContainer.addClassNames(Display.FLEX, AlignItems.CENTER, Gap.MEDIUM);
         
         // Add user display
         final var userDisplay = createUserDisplay();
