@@ -1,25 +1,291 @@
 @import url("dev-login.css");
 
-/* Red background for detailed tab */
+/* ============================================================================
+   DERBENT CSS DESIGN SYSTEM
+   Java/Sun OS Inspired Pastel Color Palette with Full Variable System
+   ============================================================================ */
+
+:root {
+    /* ============================================================================
+       PRIMARY COLOR PALETTE - Java/Sun OS Inspired Pastels
+       ============================================================================ */
+    
+    /* Primary Colors - Soft Java Blue Family */
+    --derbent-primary-50: #f0f7ff;
+    --derbent-primary-100: #e0f0ff;
+    --derbent-primary-200: #bde0ff;
+    --derbent-primary-300: #87c7ff;
+    --derbent-primary-400: #4ba3ff;
+    --derbent-primary-500: #1e7fff;  /* Main primary */
+    --derbent-primary-600: #0066ff;
+    --derbent-primary-700: #0052e6;
+    --derbent-primary-800: #0040b8;
+    --derbent-primary-900: #003399;
+    
+    /* Secondary Colors - Warm Sun Orange/Peach Family */
+    --derbent-secondary-50: #fff7ed;
+    --derbent-secondary-100: #ffedd5;
+    --derbent-secondary-200: #fed7aa;
+    --derbent-secondary-300: #fdba74;
+    --derbent-secondary-400: #fb923c;
+    --derbent-secondary-500: #f97316;  /* Main secondary */
+    --derbent-secondary-600: #ea580c;
+    --derbent-secondary-700: #c2410c;
+    --derbent-secondary-800: #9a3412;
+    --derbent-secondary-900: #7c2d12;
+    
+    /* Success Colors - Soft Green Family */
+    --derbent-success-50: #f0fdf4;
+    --derbent-success-100: #dcfce7;
+    --derbent-success-200: #bbf7d0;
+    --derbent-success-300: #86efac;
+    --derbent-success-400: #4ade80;
+    --derbent-success-500: #22c55e;  /* Main success */
+    --derbent-success-600: #16a34a;
+    --derbent-success-700: #15803d;
+    --derbent-success-800: #166534;
+    --derbent-success-900: #14532d;
+    
+    /* Warning Colors - Soft Yellow Family */
+    --derbent-warning-50: #fffbeb;
+    --derbent-warning-100: #fef3c7;
+    --derbent-warning-200: #fde68a;
+    --derbent-warning-300: #fcd34d;
+    --derbent-warning-400: #fbbf24;
+    --derbent-warning-500: #f59e0b;  /* Main warning */
+    --derbent-warning-600: #d97706;
+    --derbent-warning-700: #b45309;
+    --derbent-warning-800: #92400e;
+    --derbent-warning-900: #78350f;
+    
+    /* Error Colors - Soft Red/Pink Family */
+    --derbent-error-50: #fef2f2;
+    --derbent-error-100: #fee2e2;
+    --derbent-error-200: #fecaca;
+    --derbent-error-300: #fca5a5;
+    --derbent-error-400: #f87171;
+    --derbent-error-500: #ef4444;  /* Main error */
+    --derbent-error-600: #dc2626;
+    --derbent-error-700: #b91c1c;
+    --derbent-error-800: #991b1b;
+    --derbent-error-900: #7f1d1d;
+    
+    /* Neutral Colors - Soft Gray Family */
+    --derbent-neutral-50: #fafafa;
+    --derbent-neutral-100: #f5f5f5;
+    --derbent-neutral-200: #e5e5e5;
+    --derbent-neutral-300: #d4d4d4;
+    --derbent-neutral-400: #a3a3a3;
+    --derbent-neutral-500: #737373;  /* Main neutral */
+    --derbent-neutral-600: #525252;
+    --derbent-neutral-700: #404040;
+    --derbent-neutral-800: #262626;
+    --derbent-neutral-900: #171717;
+    
+    /* ============================================================================
+       SEMANTIC COLOR ASSIGNMENTS
+       ============================================================================ */
+    
+    /* Text Colors */
+    --derbent-text-primary: var(--derbent-neutral-900);
+    --derbent-text-secondary: var(--derbent-neutral-600);
+    --derbent-text-muted: var(--derbent-neutral-500);
+    --derbent-text-disabled: var(--derbent-neutral-400);
+    --derbent-text-on-primary: #ffffff;
+    --derbent-text-on-secondary: #ffffff;
+    --derbent-text-on-dark: #ffffff;
+    --derbent-text-on-light: var(--derbent-neutral-900);
+    
+    /* Background Colors */
+    --derbent-bg-primary: #ffffff;
+    --derbent-bg-secondary: var(--derbent-neutral-50);
+    --derbent-bg-tertiary: var(--derbent-neutral-100);
+    --derbent-bg-accent: var(--derbent-primary-50);
+    --derbent-bg-warm: var(--derbent-secondary-50);
+    --derbent-bg-success: var(--derbent-success-50);
+    --derbent-bg-warning: var(--derbent-warning-50);
+    --derbent-bg-error: var(--derbent-error-50);
+    
+    /* Button Colors */
+    --derbent-btn-primary-bg: var(--derbent-primary-500);
+    --derbent-btn-primary-hover: var(--derbent-primary-600);
+    --derbent-btn-primary-active: var(--derbent-primary-700);
+    --derbent-btn-primary-text: var(--derbent-text-on-primary);
+    
+    --derbent-btn-secondary-bg: var(--derbent-secondary-500);
+    --derbent-btn-secondary-hover: var(--derbent-secondary-600);
+    --derbent-btn-secondary-active: var(--derbent-secondary-700);
+    --derbent-btn-secondary-text: var(--derbent-text-on-secondary);
+    
+    --derbent-btn-outline-border: var(--derbent-primary-500);
+    --derbent-btn-outline-text: var(--derbent-primary-500);
+    --derbent-btn-outline-hover-bg: var(--derbent-primary-50);
+    
+    --derbent-btn-ghost-text: var(--derbent-primary-500);
+    --derbent-btn-ghost-hover-bg: var(--derbent-primary-50);
+    
+    /* Header Colors */
+    --derbent-header-bg: var(--derbent-bg-primary);
+    --derbent-header-text: var(--derbent-text-primary);
+    --derbent-header-border: var(--derbent-neutral-200);
+    --derbent-header-shadow: rgba(0, 0, 0, 0.05);
+    
+    /* Border Colors */
+    --derbent-border-light: var(--derbent-neutral-200);
+    --derbent-border-medium: var(--derbent-neutral-300);
+    --derbent-border-strong: var(--derbent-neutral-400);
+    --derbent-border-primary: var(--derbent-primary-300);
+    
+    /* ============================================================================
+       BORDER RADIUS SYSTEM
+       ============================================================================ */
+    
+    --derbent-radius-none: 0;
+    --derbent-radius-xs: 2px;
+    --derbent-radius-sm: 4px;
+    --derbent-radius-md: 6px;
+    --derbent-radius-lg: 8px;
+    --derbent-radius-xl: 12px;
+    --derbent-radius-2xl: 16px;
+    --derbent-radius-3xl: 24px;
+    --derbent-radius-full: 9999px;
+    
+    /* Component-specific radius */
+    --derbent-radius-button: var(--derbent-radius-md);
+    --derbent-radius-input: var(--derbent-radius-md);
+    --derbent-radius-card: var(--derbent-radius-xl);
+    --derbent-radius-dialog: var(--derbent-radius-lg);
+    --derbent-radius-tab: var(--derbent-radius-lg);
+    
+    /* ============================================================================
+       TYPOGRAPHY SYSTEM
+       ============================================================================ */
+    
+    /* Font Families */
+    --derbent-font-sans: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+    --derbent-font-mono: 'Fira Code', 'Consolas', 'Monaco', monospace;
+    --derbent-font-display: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+    
+    /* Font Sizes */
+    --derbent-text-xs: 0.75rem;      /* 12px */
+    --derbent-text-sm: 0.875rem;     /* 14px */
+    --derbent-text-base: 1rem;       /* 16px */
+    --derbent-text-lg: 1.125rem;     /* 18px */
+    --derbent-text-xl: 1.25rem;      /* 20px */
+    --derbent-text-2xl: 1.5rem;      /* 24px */
+    --derbent-text-3xl: 1.875rem;    /* 30px */
+    --derbent-text-4xl: 2.25rem;     /* 36px */
+    --derbent-text-5xl: 3rem;        /* 48px */
+    
+    /* Font Weights */
+    --derbent-font-thin: 100;
+    --derbent-font-light: 300;
+    --derbent-font-normal: 400;
+    --derbent-font-medium: 500;
+    --derbent-font-semibold: 600;
+    --derbent-font-bold: 700;
+    --derbent-font-extrabold: 800;
+    --derbent-font-black: 900;
+    
+    /* Line Heights */
+    --derbent-leading-none: 1;
+    --derbent-leading-tight: 1.25;
+    --derbent-leading-snug: 1.375;
+    --derbent-leading-normal: 1.5;
+    --derbent-leading-relaxed: 1.625;
+    --derbent-leading-loose: 2;
+    
+    /* ============================================================================
+       SPACING SYSTEM
+       ============================================================================ */
+    
+    --derbent-space-0: 0;
+    --derbent-space-1: 0.25rem;      /* 4px */
+    --derbent-space-2: 0.5rem;       /* 8px */
+    --derbent-space-3: 0.75rem;      /* 12px */
+    --derbent-space-4: 1rem;         /* 16px */
+    --derbent-space-5: 1.25rem;      /* 20px */
+    --derbent-space-6: 1.5rem;       /* 24px */
+    --derbent-space-8: 2rem;         /* 32px */
+    --derbent-space-10: 2.5rem;      /* 40px */
+    --derbent-space-12: 3rem;        /* 48px */
+    --derbent-space-16: 4rem;        /* 64px */
+    --derbent-space-20: 5rem;        /* 80px */
+    --derbent-space-24: 6rem;        /* 96px */
+    
+    /* ============================================================================
+       SHADOW SYSTEM
+       ============================================================================ */
+    
+    --derbent-shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --derbent-shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+    --derbent-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --derbent-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    --derbent-shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    --derbent-shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    --derbent-shadow-inner: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
+}
+
+/* ============================================================================
+   COMPONENT IMPLEMENTATIONS
+   ============================================================================ */
+
+/* Details tab layout using new variable system */
 .details-tab-layout {
-    background-color: #fff7e9;
-	width: 100%;
-	border-radius: 12px;
-	border: 1px solid var(--lumo-contrast-10pct);
-	font-size: 1.6em;
-    font-weight: bold;
+    background-color: var(--derbent-bg-warm);
+    width: 100%;
+    border-radius: var(--derbent-radius-card);
+    border: 1px solid var(--derbent-border-light);
+    font-size: var(--derbent-text-xl);
+    font-weight: var(--derbent-font-bold);
+    font-family: var(--derbent-font-sans);
+    color: var(--derbent-text-primary);
+    padding: var(--derbent-space-4);
+    box-shadow: var(--derbent-shadow-sm);
 }
 
-vaadin-scroller{
-	width: 100%;
+/* Vaadin scroller with enhanced styling */
+vaadin-scroller {
+    width: 100%;
+    background-color: var(--derbent-bg-primary);
 }
 
-
-vaadin-accordion-heading{
-	
-    font-size: var(--lumo-font-size-m);
-    font-weight: 600;
-	    color: 	#5d6069;
-		font-size: 1.3em;
-		border-bottom: 1px solid var(--lumo-contrast-10pct);
+/* Accordion heading with comprehensive styling */
+vaadin-accordion-heading {
+    font-size: var(--derbent-text-lg);
+    font-weight: var(--derbent-font-semibold);
+    font-family: var(--derbent-font-sans);
+    color: var(--derbent-text-secondary);
+    border-bottom: 1px solid var(--derbent-border-light);
+    padding: var(--derbent-space-3) var(--derbent-space-4);
+    background-color: var(--derbent-bg-secondary);
+    border-radius: var(--derbent-radius-md) var(--derbent-radius-md) 0 0;
+    line-height: var(--derbent-leading-normal);
+    transition: all 0.2s ease-in-out;
 }
+
+vaadin-accordion-heading:hover {
+    background-color: var(--derbent-bg-accent);
+    color: var(--derbent-text-primary);
+}
+
+/* ============================================================================
+   UTILITY CLASSES
+   ============================================================================ */
+
+/* Text utilities */
+.derbent-text-primary { color: var(--derbent-text-primary); }
+.derbent-text-secondary { color: var(--derbent-text-secondary); }
+.derbent-text-muted { color: var(--derbent-text-muted); }
+
+/* Background utilities */
+.derbent-bg-primary { background-color: var(--derbent-bg-primary); }
+.derbent-bg-secondary { background-color: var(--derbent-bg-secondary); }
+.derbent-bg-accent { background-color: var(--derbent-bg-accent); }
+.derbent-bg-warm { background-color: var(--derbent-bg-warm); }
+
+/* Border radius utilities */
+.derbent-rounded-sm { border-radius: var(--derbent-radius-sm); }
+.derbent-rounded-md { border-radius: var(--derbent-radius-md); }
+.derbent-rounded-lg { border-radius: var(--derbent-radius-lg); }
+.derbent-rounded-xl { border-radius: var(--derbent-radius-xl); }
