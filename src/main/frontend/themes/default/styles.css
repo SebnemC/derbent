@@ -2,7 +2,7 @@
 
 /* Red background for detailed tab */
 .details-tab-layout {
-    background-color: #fff7e9;
+    background-color: red;
 	width: 100%;
 	border-radius: 12px;
 	border: 1px solid var(--lumo-contrast-10pct);
