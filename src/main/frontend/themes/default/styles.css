@@ -138,6 +138,16 @@ vaadin-accordion-heading{
 }
 
 .view-toolbar{
-	background-color: #616161;
-	width: 100%;
+	/* Use a warm, theme-compatible background similar to details-tab-layout */
+	background: linear-gradient(135deg, #f8f4ec 0%, #fff7e9 100%);
+	/* Ensure full width by overriding AppLayout constraints */
+	width: 100vw !important;
+	max-width: 100vw !important;
+	position: relative;
+	left: calc(-1 * var(--_vaadin-app-layout-drawer-offset-size, 0px));
+	/* Add subtle border for definition */
+	border-bottom: 1px solid var(--lumo-contrast-10pct);
+	/* Add padding to account for the drawer offset */
+	box-sizing: border-box;
+	padding-left: var(--_vaadin-app-layout-drawer-offset-size, 0px);
 }
