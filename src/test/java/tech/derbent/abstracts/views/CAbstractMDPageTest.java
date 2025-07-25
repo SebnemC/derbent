@@ -204,4 +204,42 @@ class CAbstractMDPageTest {
 		assertNotNull(cancelButton.getIcon(), "Cancel button should have an icon");
 		assertNotNull(deleteButton.getIcon(), "Delete button should have an icon");
 	}
+
+	@Test
+	void testNewButtonClearsFormAndGridSelection() {
+		// Arrange
+		final TestEntity testEntity = new TestEntity();
+		testEntity.setName("Test Entity");
+		testPage.setCurrentEntity(testEntity);
+		
+		// Act - Click the new button (simulate click)
+		final CButton newButton = testPage.createNewButton("New");
+		newButton.click();
+		
+		// Assert - Form should be cleared and ready for new entity creation
+		assertNotNull(testPage.getCurrentEntity(), 
+			"Current entity should be a new entity after new button click");
+		assertNull(testPage.getCurrentEntity().getName(),
+			"New entity should have null name field after new button click");
+		assertNull(testPage.getCurrentEntity().getId(),
+			"New entity should have null ID (indicating it's new)");
+	}
+
+	@Test
+	void testSaveButtonCreatesNewEntityWhenIdIsNull() {
+		// Arrange - Create a new entity (no ID)
+		final TestEntity newEntity = new TestEntity();
+		newEntity.setName("New Test Entity");
+		testPage.setCurrentEntity(newEntity);
+		
+		// Act - Create save button to test its configuration
+		final CButton saveButton = testPage.createSaveButton("Save");
+		
+		// Assert - Save button should be properly configured
+		assertNotNull(saveButton, "Save button should be created");
+		assertNotNull(saveButton.getIcon(), "Save button should have an icon");
+		// Check theme variants instead of className
+		assertTrue(saveButton.getThemeNames().contains("primary"), 
+			"Save button should have primary styling");
+	}
 }

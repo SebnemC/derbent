@@ -95,35 +95,47 @@ public class CUsersView extends CAbstractMDPage<CUser> {
 
 	@Override
 	protected CButton createSaveButton(final String buttonText) {
-		LOGGER.info("Creating custom save button for CUsersView");
-		final tech.derbent.abstracts.views.CButton save =
-			tech.derbent.abstracts.views.CButton.createPrimary(buttonText, e -> {
-				try {
-					if (getCurrentEntity() == null) {
-						// why dont you use populateForm(
-						setCurrentEntity(newEntity());
-					}
-					getBinder().writeBean(getCurrentEntity());
-					// Handle password update if a new password was entered
-					descriptionPanel.saveEventHandler();
-					entityService.save(getCurrentEntity());
-					clearForm();
-					refreshGrid();
-					Notification.show("Data updated");
-					// Navigate back to the current view (list mode)
-					UI.getCurrent().navigate(getClass());
-				} catch (final ValidationException validationException) {
-					new CWarningDialog(
-						"Failed to save the data. Please check that all required fields are filled and values are valid.")
-						.open();
-				} catch (final Exception exception) {
-					LOGGER.error("Unexpected error during save operation", exception);
-					new CWarningDialog(
-						"An unexpected error occurred while saving. Please try again.")
-						.open();
+		LOGGER.info("Creating enhanced save button for CUsersView with custom user handling");
+		return CButton.createPrimary(buttonText, com.vaadin.flow.component.icon.VaadinIcon.CHECK.create(), e -> {
+			try {
+				if (getCurrentEntity() == null) {
+					LOGGER.warn("No current entity set when save button clicked - this should not happen");
+					return;
 				}
-			});
-		return save;
+				
+				// Determine if this is a new entity (no ID) or existing entity
+				final boolean isNewEntity = getCurrentEntity().getId() == null;
+				LOGGER.debug("Saving user entity - isNew: {}, entity: {}", isNewEntity, getCurrentEntity());
+				
+				getBinder().writeBean(getCurrentEntity());
+				
+				// Handle password update if a new password was entered (user-specific logic)
+				descriptionPanel.saveEventHandler();
+				
+				final CUser savedEntity = (CUser) entityService.save(getCurrentEntity());
+				
+				// Update current entity with saved version (for new entities, this will have the ID)
+				setCurrentEntity(savedEntity);
+				
+				clearForm();
+				refreshGrid();
+				
+				final String message = isNewEntity ? "New user created successfully" : "User updated successfully";
+				Notification.show(message);
+				
+				// Navigate back to the current view (list mode)
+				UI.getCurrent().navigate(getClass());
+			} catch (final ValidationException validationException) {
+				new CWarningDialog(
+					"Failed to save the data. Please check that all required fields are filled and values are valid.")
+					.open();
+			} catch (final Exception exception) {
+				LOGGER.error("Unexpected error during save operation", exception);
+				new CWarningDialog(
+					"An unexpected error occurred while saving. Please try again.")
+					.open();
+			}
+		});
 	}
 
 	@Override

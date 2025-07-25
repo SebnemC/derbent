@@ -114,16 +114,11 @@ public class CCompanyView extends CAbstractMDPage<CCompany> {
 
     @Override
     protected CButton createSaveButton(final String buttonText) {
-        LOGGER.debug("createSaveButton called with buttonText: {}", buttonText);
-        
-        return CButton.createPrimary(buttonText, event -> {
-            LOGGER.debug("Save button clicked for company");
-            
+        LOGGER.info("Creating enhanced save button for CCompanyView with custom company validation");
+        return CButton.createPrimary(buttonText, com.vaadin.flow.component.icon.VaadinIcon.CHECK.create(), e -> {
             try {
-                // Validate current entity selection
                 if (getCurrentEntity() == null) {
-                    LOGGER.warn("Save attempted with no entity selected");
-                    new CWarningDialog("Please select a company to save.").open();
+                    LOGGER.warn("No current entity set when save button clicked - this should not happen");
                     return;
                 }
                 
@@ -134,25 +129,30 @@ public class CCompanyView extends CAbstractMDPage<CCompany> {
                     return;
                 }
                 
-                // Write form data to entity and save
-                getBinder().writeBean(getCurrentEntity());
-                entityService.save(getCurrentEntity());
+                // Determine if this is a new entity (no ID) or existing entity
+                final boolean isNewEntity = getCurrentEntity().getId() == null;
+                LOGGER.debug("Saving company entity - isNew: {}, entity: {}", isNewEntity, getCurrentEntity());
                 
-                // Clear form and refresh grid
+                getBinder().writeBean(getCurrentEntity());
+                final CCompany savedEntity = (CCompany) entityService.save(getCurrentEntity());
+                
+                // Update current entity with saved version (for new entities, this will have the ID)
+                setCurrentEntity(savedEntity);
+                
                 clearForm();
                 refreshGrid();
                 
-                LOGGER.info("Company saved successfully: {}", getCurrentEntity().getName());
-                Notification.show("Company saved successfully!", 3000, Notification.Position.TOP_CENTER);
+                final String message = isNewEntity ? "New company created successfully" : "Company updated successfully";
+                LOGGER.info("Company saved successfully: {} - {}", savedEntity.getName(), message);
+                Notification.show(message);
                 
-                // Navigate back to list view
+                // Navigate back to the current view (list mode)
                 UI.getCurrent().navigate(getClass());
-                
-            } catch (final ValidationException e) {
-                LOGGER.error("Validation error while saving company", e);
+            } catch (final ValidationException validationException) {
+                LOGGER.error("Validation error while saving company", validationException);
                 new CWarningDialog("Failed to save the data. Please check that all required fields are filled and values are valid.").open();
-            } catch (final Exception e) {
-                LOGGER.error("Error saving company", e);
+            } catch (final Exception exception) {
+                LOGGER.error("Unexpected error during save operation", exception);
                 new CWarningDialog("An unexpected error occurred while saving. Please try again.").open();
             }
         });
