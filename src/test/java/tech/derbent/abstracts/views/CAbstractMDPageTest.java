@@ -2,6 +2,7 @@ package tech.derbent.abstracts.views;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -26,6 +27,13 @@ class CAbstractMDPageTest {
 	 * Test entity for testing purposes.
 	 */
 	private static class TestEntity extends CEntityDB {
+		
+		private String name;
+		
+		public String getName() { return name; }
+		
+		public void setName(final String name) { this.name = name; }
+		
 		// Test implementation
 	}
 
@@ -100,11 +108,11 @@ class CAbstractMDPageTest {
 		assertNotNull(buttonLayout, "Button layout should not be null");
 		assertTrue(buttonLayout.getClassName().contains("details-tab-button-layout"),
 			"Button layout should have correct CSS class");
-		// Verify that buttons are present (Save, Cancel, Delete)
+		// Verify that buttons are present (Save, New, Cancel, Delete)
 		final long buttonCount =
 			buttonLayout.getChildren().filter(CButton.class::isInstance).count();
-		assertEquals(3, buttonCount,
-			"Should have exactly 3 buttons (Save, Cancel, Delete)");
+		assertEquals(4, buttonCount,
+			"Should have exactly 4 buttons (Save, New, Cancel, Delete)");
 	}
 
 	@Test
@@ -136,5 +144,49 @@ class CAbstractMDPageTest {
 		assertNotNull(tabContent, "Tab content layout should exist");
 		assertTrue(tabContent.getClassName().contains("details-tab-content"),
 			"Tab content should have correct CSS class");
+	}
+
+	@Test
+	void testClearFormResetsCurrentEntity() {
+		// Arrange
+		final TestEntity testEntity = new TestEntity();
+		testEntity.setName("Test Entity");
+		testPage.setCurrentEntity(testEntity);
+		
+		// Act
+		testPage.clearForm();
+		
+		// Assert - clearForm should now set currentEntity to a new entity, not null
+		assertNotNull(testPage.getCurrentEntity(), 
+			"Current entity should be a new entity after clearing form");
+		assertNull(testPage.getCurrentEntity().getName(),
+			"Current entity should have null name after clearing form");
+		assertNull(testPage.getCurrentEntity().getId(),
+			"Current entity should have null ID after clearing form (indicating it's new)");
+	}
+
+	@Test
+	void testClearFormClearsBinderData() {
+		// Arrange
+		final TestEntity testEntity = new TestEntity();
+		testEntity.setName("Test Entity");
+		
+		// Populate form with entity data
+		testPage.populateForm(testEntity);
+		assertNotNull(testPage.getCurrentEntity(), 
+			"Current entity should be set after populate");
+		assertEquals("Test Entity", testPage.getCurrentEntity().getName(),
+			"Entity name should be populated");
+		
+		// Act
+		testPage.clearForm();
+		
+		// Assert - Form should be cleared and ready for new entity creation
+		assertNotNull(testPage.getCurrentEntity(), 
+			"Current entity should be a new entity after clearing form");
+		assertNull(testPage.getCurrentEntity().getName(),
+			"New entity should have null name field after clearing form");
+		assertNull(testPage.getCurrentEntity().getId(),
+			"New entity should have null ID (indicating it's new)");
 	}
 }

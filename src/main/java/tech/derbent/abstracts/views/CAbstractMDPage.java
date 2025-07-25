@@ -128,7 +128,10 @@ public abstract class CAbstractMDPage<EntityClass extends CEntityDB> extends CAb
 	}
 
 	protected void clearForm() {
-		populateForm(null);
+		LOGGER.debug("Clearing form for {}", getClass().getSimpleName());
+		// Create a new entity for form binding to ensure fields are truly cleared
+		final EntityClass newEntity = newEntity();
+		populateForm(newEntity);
 	}
 
 	/**
@@ -142,6 +145,19 @@ public abstract class CAbstractMDPage<EntityClass extends CEntityDB> extends CAb
 			"createButtonLayout called - default save/delete/cancel buttons are now in details tab");
 		// Default implementation does nothing - buttons are in the tab Subclasses can
 		// override this for additional custom buttons in the main content area
+	}
+
+	protected CButton createNewButton(final String buttonText) {
+		LOGGER.info("Creating new button for {}", getClass().getSimpleName());
+		final CButton newButton = CButton.createTertiary(buttonText, e -> {
+			LOGGER.debug("New button clicked - clearing form to create new entity");
+			clearForm();
+			// Clear grid selection to indicate we're creating a new item
+			if (grid != null) {
+				grid.select(null);
+			}
+		});
+		return newButton;
 	}
 
 	protected CButton createCancelButton(final String buttonText) {
@@ -177,7 +193,7 @@ public abstract class CAbstractMDPage<EntityClass extends CEntityDB> extends CAb
 	protected abstract void createDetailsLayout();
 
 	/**
-	 * Creates the button layout for the details tab. Contains save, cancel, and delete
+	 * Creates the button layout for the details tab. Contains save, new, cancel, and delete
 	 * buttons with consistent styling.
 	 * @return HorizontalLayout with action buttons
 	 */
@@ -185,7 +201,7 @@ public abstract class CAbstractMDPage<EntityClass extends CEntityDB> extends CAb
 		final HorizontalLayout buttonLayout = new HorizontalLayout();
 		buttonLayout.setClassName("details-tab-button-layout");
 		buttonLayout.setSpacing(true);
-		buttonLayout.add(createSaveButton("Save"), createCancelButton("Cancel"),
+		buttonLayout.add(createSaveButton("Save"), createNewButton("New"), createCancelButton("Cancel"),
 			createDeleteButton("Delete"));
 		return buttonLayout;
 	}
@@ -257,17 +273,30 @@ public abstract class CAbstractMDPage<EntityClass extends CEntityDB> extends CAb
 	}
 
 	protected CButton createSaveButton(final String buttonText) {
-		LOGGER.info("Creating save button for CUsersView");
+		LOGGER.info("Creating save button for {}", getClass().getSimpleName());
 		final CButton save = CButton.createPrimary(buttonText, e -> {
 			try {
 				if (currentEntity == null) {
-					currentEntity = newEntity();
+					LOGGER.warn("No current entity set when save button clicked - this should not happen");
+					return;
 				}
+				
+				// Determine if this is a new entity (no ID) or existing entity
+				final boolean isNewEntity = currentEntity.getId() == null;
+				LOGGER.debug("Saving entity - isNew: {}, entity: {}", isNewEntity, currentEntity);
+				
 				getBinder().writeBean(currentEntity);
-				entityService.save(currentEntity);
+				final EntityClass savedEntity = entityService.save(currentEntity);
+				
+				// Update current entity with saved version (for new entities, this will have the ID)
+				currentEntity = savedEntity;
+				
 				clearForm();
 				refreshGrid();
-				Notification.show("Data updated");
+				
+				final String message = isNewEntity ? "New item created successfully" : "Item updated successfully";
+				Notification.show(message);
+				
 				// Navigate back to the current view (list mode)
 				UI.getCurrent().navigate(getClass());
 			} catch (final ObjectOptimisticLockingFailureException exception) {
