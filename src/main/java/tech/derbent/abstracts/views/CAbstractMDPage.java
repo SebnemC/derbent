@@ -156,11 +156,16 @@ public abstract class CAbstractMDPage<EntityClass extends CEntityDB> extends CAb
 		LOGGER.info("Creating new button for {}", getClass().getSimpleName());
 		final CButton newButton = CButton.createTertiary(buttonText, VaadinIcon.PLUS.create(), e -> {
 			LOGGER.debug("New button clicked - clearing form to create new entity");
+			
 			// Clear the form completely for new entity creation
 			clearForm();
+			LOGGER.debug("clearForm() completed - currentEntity is now: {}", 
+				currentEntity != null ? String.format("entity=%s, id=%s", currentEntity.getClass().getSimpleName(), currentEntity.getId()) : "null");
+			
 			// Ensure grid selection is explicitly cleared to indicate we're creating a new item
 			if (grid != null) {
 				grid.getSelectionModel().deselectAll();
+				LOGGER.debug("Grid selection cleared");
 			}
 			LOGGER.debug("Form cleared and grid deselected - ready for new entity creation");
 		});
@@ -303,7 +308,12 @@ public abstract class CAbstractMDPage<EntityClass extends CEntityDB> extends CAb
 	protected CButton createSaveButton(final String buttonText) {
 		LOGGER.info("Creating save button for {}", getClass().getSimpleName());
 		final CButton save = CButton.createPrimary(buttonText, VaadinIcon.CHECK.create(), e -> {
+			LOGGER.debug("Save button clicked for {}", getClass().getSimpleName());
 			try {
+				// Enhanced debugging for currentEntity state
+				LOGGER.debug("Current entity state: {}", currentEntity != null ? 
+					String.format("entity=%s, id=%s", currentEntity.getClass().getSimpleName(), currentEntity.getId()) : "null");
+				
 				if (currentEntity == null) {
 					LOGGER.warn("No current entity set when save button clicked - this should not happen");
 					new CWarningDialog("No data to save. Please select an item or click 'New' to create one.").open();
@@ -314,8 +324,15 @@ public abstract class CAbstractMDPage<EntityClass extends CEntityDB> extends CAb
 				final boolean isNewEntity = currentEntity.getId() == null;
 				LOGGER.debug("Saving entity - isNew: {}, entity: {}", isNewEntity, currentEntity);
 				
+				// Enhanced logging before binder operation
+				LOGGER.debug("About to call binder.writeBean() for entity: {}", currentEntity);
+				
 				// Validate the binder and write to entity
 				getBinder().writeBean(currentEntity);
+				LOGGER.debug("binder.writeBean() completed successfully");
+				
+				// Enhanced logging before save operation
+				LOGGER.debug("About to call entityService.save() for entity: {}", currentEntity);
 				
 				// Save the entity
 				final EntityClass savedEntity = entityService.save(currentEntity);
@@ -325,15 +342,18 @@ public abstract class CAbstractMDPage<EntityClass extends CEntityDB> extends CAb
 				currentEntity = savedEntity;
 				
 				// Refresh the UI
+				LOGGER.debug("Refreshing grid after successful save");
 				refreshGrid();
 				
 				// Provide user feedback
 				final String message = isNewEntity ? 
 					String.format("New %s created successfully", entityClass.getSimpleName().replace("C", "").toLowerCase()) : 
 					String.format("%s updated successfully", entityClass.getSimpleName().replace("C", "").toLowerCase());
+				LOGGER.debug("Showing success notification: {}", message);
 				Notification.show(message);
 				
 				// Navigate back to the current view (list mode)
+				LOGGER.debug("Navigating back to list view");
 				UI.getCurrent().navigate(getClass());
 			} catch (final ObjectOptimisticLockingFailureException exception) {
 				LOGGER.error("Optimistic locking failure during save operation", exception);
