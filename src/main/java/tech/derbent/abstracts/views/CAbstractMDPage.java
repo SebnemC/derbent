@@ -307,7 +307,11 @@ public abstract class CAbstractMDPage<EntityClass extends CEntityDB> extends CAb
 
 	protected CButton createSaveButton(final String buttonText) {
 		LOGGER.info("Creating save button for {}", getClass().getSimpleName());
+		
+		// Create button with explicit debug logging
+		LOGGER.debug("About to create save button with text: '{}' and icon", buttonText);
 		final CButton save = CButton.createPrimary(buttonText, VaadinIcon.CHECK.create(), e -> {
+			LOGGER.debug("=== SAVE BUTTON CLICKED ===");
 			LOGGER.debug("Save button clicked for {}", getClass().getSimpleName());
 			try {
 				// Enhanced debugging for currentEntity state
@@ -323,6 +327,21 @@ public abstract class CAbstractMDPage<EntityClass extends CEntityDB> extends CAb
 				// Determine if this is a new entity (no ID) or existing entity
 				final boolean isNewEntity = currentEntity.getId() == null;
 				LOGGER.debug("Saving entity - isNew: {}, entity: {}", isNewEntity, currentEntity);
+				
+				// Check binder validation state before attempting writeBean
+				LOGGER.debug("Checking binder validation state");
+				
+				// For new entities, we'll attempt writeBean and let it handle validation
+				// rather than pre-checking with isValid() which might be overly strict
+				if (!isNewEntity && !getBinder().isValid()) {
+					LOGGER.warn("Binder validation failed for existing entity - form has validation errors");
+					// Force validation to show errors on the UI
+					getBinder().validate();
+					new CWarningDialog("Please fix the validation errors highlighted in the form before saving.").open();
+					return;
+				} else if (isNewEntity) {
+					LOGGER.debug("New entity - will validate during writeBean operation");
+				}
 				
 				// Enhanced logging before binder operation
 				LOGGER.debug("About to call binder.writeBean() for entity: {}", currentEntity);
@@ -364,15 +383,18 @@ public abstract class CAbstractMDPage<EntityClass extends CEntityDB> extends CAb
 			} catch (final ValidationException validationException) {
 				LOGGER.error("Validation error during save operation", validationException);
 				new CWarningDialog(
-					"Failed to save the data. Please check that all required fields are filled and values are valid.")
+					"Failed to save the data. Please check that all required fields are filled and values are valid. Details: " + validationException.getMessage())
 					.open();
 			} catch (final Exception exception) {
 				LOGGER.error("Unexpected error during save operation", exception);
 				new CWarningDialog(
-					"An unexpected error occurred while saving. Please try again or contact support if the problem persists.")
+					"An unexpected error occurred while saving. Please try again or contact support if the problem persists. Details: " + exception.getMessage())
 					.open();
 			}
+			LOGGER.debug("=== SAVE BUTTON CLICK HANDLER COMPLETED ===");
 		});
+		
+		LOGGER.debug("Save button created successfully with theme: {}", save.getThemeNames());
 		return save;
 	}
 
