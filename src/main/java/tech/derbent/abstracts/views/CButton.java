@@ -168,6 +168,39 @@ public class CButton extends Button {
     }
 
     /**
+     * Creates a tertiary button with text and icon.
+     * 
+     * @param text
+     *            the button text
+     * @param icon
+     *            the button icon
+     * @return a new CButton with tertiary styling and icon
+     */
+    public static CButton createTertiary(final String text, final Icon icon) {
+        final CButton button = new CButton(text, icon);
+        button.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+        return button;
+    }
+
+    /**
+     * Creates a tertiary button with text, icon and click listener.
+     * 
+     * @param text
+     *            the button text
+     * @param icon
+     *            the button icon
+     * @param clickListener
+     *            the click event listener
+     * @return a new CButton with tertiary styling and icon
+     */
+    public static CButton createTertiary(final String text, final Icon icon,
+            final ComponentEventListener<ClickEvent<Button>> clickListener) {
+        final CButton button = new CButton(text, icon, clickListener);
+        button.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+        return button;
+    }
+
+    /**
      * Creates an error button with the specified text.
      * 
      * @param text

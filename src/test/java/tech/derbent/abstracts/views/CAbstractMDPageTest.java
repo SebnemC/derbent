@@ -189,4 +189,19 @@ class CAbstractMDPageTest {
 		assertNull(testPage.getCurrentEntity().getId(),
 			"New entity should have null ID (indicating it's new)");
 	}
+
+	@Test
+	void testButtonsHaveIcons() {
+		// Act - Create buttons
+		final CButton saveButton = testPage.createSaveButton("Save");
+		final CButton newButton = testPage.createNewButton("New");
+		final CButton cancelButton = testPage.createCancelButton("Cancel");
+		final CButton deleteButton = testPage.createDeleteButton("Delete");
+		
+		// Assert - All buttons should have icons (checking that getIcon() doesn't return null)
+		assertNotNull(saveButton.getIcon(), "Save button should have an icon");
+		assertNotNull(newButton.getIcon(), "New button should have an icon");
+		assertNotNull(cancelButton.getIcon(), "Cancel button should have an icon");
+		assertNotNull(deleteButton.getIcon(), "Delete button should have an icon");
+	}
 }

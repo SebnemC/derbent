@@ -11,6 +11,7 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.Notification.Position;
 import com.vaadin.flow.component.notification.NotificationVariant;
@@ -149,7 +150,7 @@ public abstract class CAbstractMDPage<EntityClass extends CEntityDB> extends CAb
 
 	protected CButton createNewButton(final String buttonText) {
 		LOGGER.info("Creating new button for {}", getClass().getSimpleName());
-		final CButton newButton = CButton.createTertiary(buttonText, e -> {
+		final CButton newButton = CButton.createTertiary(buttonText, VaadinIcon.PLUS.create(), e -> {
 			LOGGER.debug("New button clicked - clearing form to create new entity");
 			clearForm();
 			// Clear grid selection to indicate we're creating a new item
@@ -161,7 +162,7 @@ public abstract class CAbstractMDPage<EntityClass extends CEntityDB> extends CAb
 	}
 
 	protected CButton createCancelButton(final String buttonText) {
-		final CButton cancel = CButton.createTertiary(buttonText, e -> {
+		final CButton cancel = CButton.createTertiary(buttonText, VaadinIcon.CLOSE.create(), e -> {
 			clearForm();
 			refreshGrid();
 		});
@@ -170,7 +171,7 @@ public abstract class CAbstractMDPage<EntityClass extends CEntityDB> extends CAb
 
 	protected CButton createDeleteButton(final String buttonText) {
 		LOGGER.info("Creating delete button for CUsersView");
-		final CButton delete = CButton.createTertiary(buttonText);
+		final CButton delete = CButton.createTertiary(buttonText, VaadinIcon.TRASH.create());
 		delete.addClickListener(e -> {
 			if (currentEntity == null) {
 				new CWarningDialog("Please select an item to delete.").open();
@@ -274,7 +275,7 @@ public abstract class CAbstractMDPage<EntityClass extends CEntityDB> extends CAb
 
 	protected CButton createSaveButton(final String buttonText) {
 		LOGGER.info("Creating save button for {}", getClass().getSimpleName());
-		final CButton save = CButton.createPrimary(buttonText, e -> {
+		final CButton save = CButton.createPrimary(buttonText, VaadinIcon.CHECK.create(), e -> {
 			try {
 				if (currentEntity == null) {
 					LOGGER.warn("No current entity set when save button clicked - this should not happen");
