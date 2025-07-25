@@ -149,10 +149,15 @@ public class CUserService extends CAbstractService<CUser> implements UserDetails
 	 * @param id the user ID
 	 * @return the user with project settings loaded
 	 * @throws EntityNotFoundException if user not found
+	 * @throws IllegalArgumentException if ID is null
 	 */
 	@Transactional(readOnly = true)
 	public CUser getUserWithProjects(final Long id) {
 		LOGGER.debug("Getting user with projects for ID: {}", id);
+		if (id == null) {
+			LOGGER.warn("Attempted to get user with projects but ID is null");
+			throw new IllegalArgumentException("User ID cannot be null");
+		}
 		final CUser user =
 			((CUserRepository) repository).findByIdWithProjects(id).orElseThrow(
 				() -> new EntityNotFoundException("User not found with ID: " + id));

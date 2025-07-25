@@ -133,6 +133,10 @@ public abstract class CAbstractMDPage<EntityClass extends CEntityDB> extends CAb
 		// Create a new entity for form binding to ensure fields are truly cleared
 		final EntityClass newEntity = newEntity();
 		populateForm(newEntity);
+		// Ensure grid selection is cleared when form is cleared
+		if (grid != null) {
+			grid.select(null);
+		}
 	}
 
 	/**
@@ -152,39 +156,62 @@ public abstract class CAbstractMDPage<EntityClass extends CEntityDB> extends CAb
 		LOGGER.info("Creating new button for {}", getClass().getSimpleName());
 		final CButton newButton = CButton.createTertiary(buttonText, VaadinIcon.PLUS.create(), e -> {
 			LOGGER.debug("New button clicked - clearing form to create new entity");
+			// Clear the form completely for new entity creation
 			clearForm();
-			// Clear grid selection to indicate we're creating a new item
+			// Ensure grid selection is explicitly cleared to indicate we're creating a new item
 			if (grid != null) {
-				grid.select(null);
+				grid.getSelectionModel().deselectAll();
 			}
+			LOGGER.debug("Form cleared and grid deselected - ready for new entity creation");
 		});
 		return newButton;
 	}
 
 	protected CButton createCancelButton(final String buttonText) {
+		LOGGER.info("Creating cancel button for {}", getClass().getSimpleName());
 		final CButton cancel = CButton.createTertiary(buttonText, VaadinIcon.CLOSE.create(), e -> {
+			LOGGER.debug("Cancel button clicked - clearing form and refreshing grid");
 			clearForm();
 			refreshGrid();
+			// Auto-select first item if available after cancel
+			selectFirstItemIfAvailable();
 		});
 		return cancel;
 	}
 
 	protected CButton createDeleteButton(final String buttonText) {
-		LOGGER.info("Creating delete button for CUsersView");
+		LOGGER.info("Creating delete button for {}", getClass().getSimpleName());
 		final CButton delete = CButton.createTertiary(buttonText, VaadinIcon.TRASH.create());
 		delete.addClickListener(e -> {
-			if (currentEntity == null) {
-				new CWarningDialog("Please select an item to delete.").open();
+			LOGGER.debug("Delete button clicked for {}", getClass().getSimpleName());
+			if (currentEntity == null || currentEntity.getId() == null) {
+				LOGGER.warn("No entity selected or entity has no ID - cannot delete");
+				new CWarningDialog("Please select an existing item to delete.").open();
 				return;
 			}
 			// Show confirmation dialog for delete operation
+			final String entityName = entityClass.getSimpleName().replace("C", "").toLowerCase();
 			final String confirmMessage = String.format(
-				"Are you sure you want to delete this %s? This action cannot be undone.",
-				entityClass.getSimpleName().replace("C", "").toLowerCase());
+				"Are you sure you want to delete this %s? This action cannot be undone.", entityName);
 			new CConfirmationDialog(confirmMessage, () -> {
-				entityService.delete(currentEntity);
-				clearForm();
-				refreshGrid();
+				try {
+					LOGGER.debug("Deleting entity with ID: {}", currentEntity.getId());
+					entityService.delete(currentEntity);
+					LOGGER.debug("Entity deleted successfully");
+					
+					// Clear form and refresh grid
+					clearForm();
+					refreshGrid();
+					
+					// Provide user feedback
+					Notification.show(String.format("%s deleted successfully", 
+						entityName.substring(0, 1).toUpperCase() + entityName.substring(1)));
+				} catch (final Exception ex) {
+					LOGGER.error("Error deleting entity with ID: {}", currentEntity.getId(), ex);
+					new CWarningDialog(
+						"An error occurred while deleting the item. Please try again or contact support if the problem persists.")
+						.open();
+				}
 			}).open();
 		});
 		return delete;
@@ -279,6 +306,7 @@ public abstract class CAbstractMDPage<EntityClass extends CEntityDB> extends CAb
 			try {
 				if (currentEntity == null) {
 					LOGGER.warn("No current entity set when save button clicked - this should not happen");
+					new CWarningDialog("No data to save. Please select an item or click 'New' to create one.").open();
 					return;
 				}
 				
@@ -286,33 +314,42 @@ public abstract class CAbstractMDPage<EntityClass extends CEntityDB> extends CAb
 				final boolean isNewEntity = currentEntity.getId() == null;
 				LOGGER.debug("Saving entity - isNew: {}, entity: {}", isNewEntity, currentEntity);
 				
+				// Validate the binder and write to entity
 				getBinder().writeBean(currentEntity);
+				
+				// Save the entity
 				final EntityClass savedEntity = entityService.save(currentEntity);
+				LOGGER.debug("Entity saved successfully with ID: {}", savedEntity.getId());
 				
 				// Update current entity with saved version (for new entities, this will have the ID)
 				currentEntity = savedEntity;
 				
-				clearForm();
+				// Refresh the UI
 				refreshGrid();
 				
-				final String message = isNewEntity ? "New item created successfully" : "Item updated successfully";
+				// Provide user feedback
+				final String message = isNewEntity ? 
+					String.format("New %s created successfully", entityClass.getSimpleName().replace("C", "").toLowerCase()) : 
+					String.format("%s updated successfully", entityClass.getSimpleName().replace("C", "").toLowerCase());
 				Notification.show(message);
 				
 				// Navigate back to the current view (list mode)
 				UI.getCurrent().navigate(getClass());
 			} catch (final ObjectOptimisticLockingFailureException exception) {
+				LOGGER.error("Optimistic locking failure during save operation", exception);
 				final Notification n = Notification.show(
 					"Error updating the data. Somebody else has updated the record while you were making changes.");
 				n.setPosition(Position.MIDDLE);
 				n.addThemeVariants(NotificationVariant.LUMO_ERROR);
 			} catch (final ValidationException validationException) {
+				LOGGER.error("Validation error during save operation", validationException);
 				new CWarningDialog(
 					"Failed to save the data. Please check that all required fields are filled and values are valid.")
 					.open();
 			} catch (final Exception exception) {
 				LOGGER.error("Unexpected error during save operation", exception);
 				new CWarningDialog(
-					"An unexpected error occurred while saving. Please try again.")
+					"An unexpected error occurred while saving. Please try again or contact support if the problem persists.")
 					.open();
 			}
 		});

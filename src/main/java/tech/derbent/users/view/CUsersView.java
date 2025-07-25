@@ -162,32 +162,42 @@ public class CUsersView extends CAbstractMDPage<CUser> {
 		// Clear the description panel
 		descriptionPanel.populateForm(value);
 		// Update the project settings grid when a user is selected
-		if (value != null) {
+		if (value != null && value.getId() != null) {
 			// Load user with project settings to avoid lazy initialization issues
-			final CUser userWithSettings =
-				((CUserService) entityService).getUserWithProjects(value.getId());
-			projectSettingsGrid.setCurrentUser(userWithSettings);
-			projectSettingsGrid.setProjectSettingsAccessors(
-				() -> userWithSettings.getProjectSettings() != null
-					? userWithSettings.getProjectSettings()
-					: java.util.Collections.emptyList(),
-				(settings) -> {
-					userWithSettings.setProjectSettings(settings);
-					// Save the user when project settings are updated
-					entityService.save(userWithSettings);
-				}, () -> {
-					// Refresh the current entity after save
-					try {
-						final CUser refreshedUser = ((CUserService) entityService)
-							.getUserWithProjects(userWithSettings.getId());
-						populateForm(refreshedUser);
-					} catch (final Exception e) {
-						LOGGER.error(
-							"Error refreshing user after project settings update", e);
-					}
-				});
+			try {
+				final CUser userWithSettings =
+					((CUserService) entityService).getUserWithProjects(value.getId());
+				projectSettingsGrid.setCurrentUser(userWithSettings);
+				projectSettingsGrid.setProjectSettingsAccessors(
+					() -> userWithSettings.getProjectSettings() != null
+						? userWithSettings.getProjectSettings()
+						: java.util.Collections.emptyList(),
+					(settings) -> {
+						userWithSettings.setProjectSettings(settings);
+						// Save the user when project settings are updated
+						entityService.save(userWithSettings);
+					}, () -> {
+						// Refresh the current entity after save
+						try {
+							final CUser refreshedUser = ((CUserService) entityService)
+								.getUserWithProjects(userWithSettings.getId());
+							populateForm(refreshedUser);
+						} catch (final Exception e) {
+							LOGGER.error(
+								"Error refreshing user after project settings update", e);
+						}
+					});
+			} catch (final Exception e) {
+				LOGGER.error("Error loading user with projects for ID: {}", value.getId(), e);
+				// Fallback to basic user without project settings
+				projectSettingsGrid.setCurrentUser(value);
+				projectSettingsGrid.setProjectSettingsAccessors(
+					() -> java.util.Collections.emptyList(), (settings) -> {}, () -> {});
+			}
 		}
 		else {
+			// Handle case where user is null or has no ID (new user)
+			LOGGER.debug("User is null or has no ID, clearing project settings grid");
 			projectSettingsGrid.setCurrentUser(null);
 			projectSettingsGrid.setProjectSettingsAccessors(
 				() -> java.util.Collections.emptyList(), (settings) -> {}, () -> {});

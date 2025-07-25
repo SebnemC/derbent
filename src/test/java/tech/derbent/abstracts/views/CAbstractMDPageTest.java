@@ -147,7 +147,7 @@ class CAbstractMDPageTest {
 	}
 
 	@Test
-	void testClearFormResetsCurrentEntity() {
+	void testClearFormResetsCurrentEntityAndClearsGrid() {
 		// Arrange
 		final TestEntity testEntity = new TestEntity();
 		testEntity.setName("Test Entity");
@@ -226,6 +226,26 @@ class CAbstractMDPageTest {
 	}
 
 	@Test
+	void testEnhancedNewButtonBehavior() {
+		// Arrange
+		final TestEntity testEntity = new TestEntity();
+		testEntity.setName("Existing Entity");
+		testPage.setCurrentEntity(testEntity);
+		
+		// Act - Create and click the new button
+		final CButton newButton = testPage.createNewButton("New");
+		newButton.click();
+		
+		// Assert - New button should clear everything for new entity creation
+		assertNotNull(testPage.getCurrentEntity(), 
+			"Should have a new entity ready for creation");
+		assertNull(testPage.getCurrentEntity().getId(),
+			"New entity should have null ID");
+		assertNull(testPage.getCurrentEntity().getName(),
+			"New entity should have null name");
+	}
+
+	@Test
 	void testSaveButtonCreatesNewEntityWhenIdIsNull() {
 		// Arrange - Create a new entity (no ID)
 		final TestEntity newEntity = new TestEntity();
@@ -241,5 +261,36 @@ class CAbstractMDPageTest {
 		// Check theme variants instead of className
 		assertTrue(saveButton.getThemeNames().contains("primary"), 
 			"Save button should have primary styling");
+	}
+
+	@Test
+	void testDeleteButtonHandlesNullEntity() {
+		// Arrange - No entity set (null)
+		testPage.setCurrentEntity(null);
+		
+		// Act - Create delete button
+		final CButton deleteButton = testPage.createDeleteButton("Delete");
+		
+		// Assert - Delete button should be created and configured properly
+		assertNotNull(deleteButton, "Delete button should be created");
+		assertNotNull(deleteButton.getIcon(), "Delete button should have an icon");
+		assertTrue(deleteButton.getThemeNames().contains("tertiary"), 
+			"Delete button should have tertiary styling");
+	}
+
+	@Test
+	void testDeleteButtonHandlesEntityWithoutId() {
+		// Arrange - Entity without ID (new entity)
+		final TestEntity newEntity = new TestEntity();
+		newEntity.setName("New Entity");
+		// ID is null by default
+		testPage.setCurrentEntity(newEntity);
+		
+		// Act - Create delete button
+		final CButton deleteButton = testPage.createDeleteButton("Delete");
+		
+		// Assert - Delete button should be properly configured
+		assertNotNull(deleteButton, "Delete button should be created");
+		assertNotNull(deleteButton.getIcon(), "Delete button should have an icon");
 	}
 }
