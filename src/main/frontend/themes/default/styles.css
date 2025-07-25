@@ -1,6 +1,13 @@
 @import url("dev-login.css");
 @import url("login-background.css");
 
+/* CDashboardView styles */
+.cdashboard-view {
+    width: 100%;
+    padding: var(--lumo-space-m);
+    background: var(--lumo-base-color);
+}
+
 /* Red background for detailed tab */
 .details-tab-layout {
     background-color: #fff7e9;

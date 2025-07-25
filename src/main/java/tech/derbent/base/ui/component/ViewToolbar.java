@@ -115,6 +115,7 @@ public final class ViewToolbar extends Composite<Header> implements CProjectList
         // this is a button that toggles the drawer in the app layout
         final var drawerToggle = new DrawerToggle();
         drawerToggle.addClassNames(Margin.NONE);
+        
         title = new H1(viewTitle);
         title.addClassNames(FontSize.XLARGE, Margin.NONE, FontWeight.LIGHT);
 

@@ -124,6 +124,37 @@ INSERT INTO cmeeting_participants (meeting_id, user_id) VALUES
 (5, 1),
 (5, 2);
 
+-- Insert sample user-project relationships
+-- Link users to projects with specific roles
+INSERT INTO cuserprojectsettings (user_id, project_id, role, permission) VALUES 
+-- User 1 (user) in multiple projects
+(1, 1, 'Developer', 'READ_WRITE'),  -- user in Derbent Project as Developer
+(1, 3, 'Lead Developer', 'READ_WRITE'),  -- user in Mobile App Development as Lead Developer
+-- User 2 (user2) in multiple projects  
+(2, 1, 'Manager', 'ADMIN'),  -- user2 in Derbent Project as Manager
+(2, 2, 'Project Manager', 'ADMIN');  -- user2 in Website Redesign as Project Manager
+
+-- Insert sample activities
+-- Activities for Derbent Project (project_id = 1)
+INSERT INTO cactivity (name, project_id, cactivitytype_id) VALUES 
+('Setup Development Environment', 1, 1),
+('Design User Interface', 1, 3),
+('Implement Authentication', 1, 1),
+('Write Unit Tests', 1, 2),
+('Project Planning Meeting', 1, 5),
+
+-- Activities for Website Redesign (project_id = 2)
+('Analyze Current Website', 2, 6),
+('Create New Design Concepts', 2, 3),
+('User Experience Research', 2, 6),
+
+-- Activities for Mobile App Development (project_id = 3)
+('Mobile App Architecture', 3, 1),
+('iOS Development Setup', 3, 1),
+('Android Development Setup', 3, 1),
+('Mobile UI Design', 3, 3),
+('Mobile Testing Strategy', 3, 2);
+
 -- Insert sample companies
 -- ccompany table with company_id as primary key
 INSERT INTO ccompany (
