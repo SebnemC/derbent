@@ -55,15 +55,8 @@ public class CProjectsView extends CAbstractMDPage<CProject> {
         LOGGER.info("Creating grid for projects");
         // property name must match the field name in CProject
         grid.addColumn("name").setAutoWidth(true).setHeader("Name").setSortable(true);
-        // when a row is selected or deselected, populate form
-        grid.asSingleSelect().addValueChangeListener(event -> {
-            if (event.getValue() != null) {
-                UI.getCurrent().navigate(String.format(ENTITY_ROUTE_TEMPLATE_EDIT, event.getValue().getId()));
-            } else {
-                clearForm();
-                UI.getCurrent().navigate(CProjectsView.class);
-            }
-        });
+        // Note: Grid selection listener is handled by the base class CAbstractMDPage
+        // Removing duplicate listener that was causing conflicts with New/Delete buttons
     }
 
     @Override

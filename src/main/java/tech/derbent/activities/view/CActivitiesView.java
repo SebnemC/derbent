@@ -66,17 +66,8 @@ public class CActivitiesView extends CProjectAwareMDPage<CActivity> {
 				activityEntity.getActivityStatus().getName() : "";
 		}).setAutoWidth(true).setHeader("Status");
 		
-		// when a row is selected or deselected, populate form
-		grid.asSingleSelect().addValueChangeListener(event -> {
-			if (event.getValue() != null) {
-				UI.getCurrent().navigate(
-					String.format(ENTITY_ROUTE_TEMPLATE_EDIT, event.getValue().getId()));
-			}
-			else {
-				clearForm();
-				UI.getCurrent().navigate(CActivitiesView.class);
-			}
-		});
+		// Note: Grid selection listener is handled by the base class CAbstractMDPage
+		// Removing duplicate listener that was causing conflicts with New/Delete buttons
 	}
 
 	// private final BeanValidationBinder<CProject> binder; private final CProjectService

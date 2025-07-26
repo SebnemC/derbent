@@ -53,16 +53,8 @@ public class CRiskView extends CProjectAwareMDPage<CRisk> {
 		grid.addColumn("name").setHeader("Name").setAutoWidth(true).setSortable(true);
 		grid.addColumn(risk -> risk.getRiskSeverity().name()).setHeader("Severity")
 			.setAutoWidth(true).setSortable(true);
-		grid.asSingleSelect().addValueChangeListener(event -> {
-			if (event.getValue() != null) {
-				UI.getCurrent().navigate(
-					String.format(ENTITY_ROUTE_TEMPLATE_EDIT, event.getValue().getId()));
-			}
-			else {
-				clearForm();
-				UI.getCurrent().navigate("risks");
-			}
-		});
+		// Note: Grid selection listener is handled by the base class CAbstractMDPage
+		// Removing duplicate listener that was causing conflicts with New/Delete buttons
 	}
 
 	@Override
