@@ -282,7 +282,33 @@ public final class CEntityFormBuilder implements ApplicationContextAware {
 					return (name != null && !name.trim().isEmpty()) ? name : 
 						"Unnamed " + item.getClass().getSimpleName() + " #" + namedEntity.getId();
 				}
-				// For non-named entities, fall back to toString()
+				
+				// Check if any entity has a getName() method using reflection (e.g., CCompany)
+				// This handles entities that have names but don't extend CEntityNamed
+				try {
+					final java.lang.reflect.Method getNameMethod = item.getClass().getMethod("getName");
+					if (getNameMethod.getReturnType() == String.class) {
+						final String name = (String) getNameMethod.invoke(item);
+						if (name != null && !name.trim().isEmpty()) {
+							return name;
+						}
+						// If getName() returns null/empty, try to get ID for fallback
+						try {
+							final java.lang.reflect.Method getIdMethod = item.getClass().getMethod("getId");
+							final Object id = getIdMethod.invoke(item);
+							return "Unnamed " + item.getClass().getSimpleName() + " #" + id;
+						} catch (final Exception idException) {
+							return "Unnamed " + item.getClass().getSimpleName();
+						}
+					}
+				} catch (final java.lang.NoSuchMethodException e) {
+					// No getName() method found, continue to toString()
+				} catch (final Exception e) {
+					LOGGER.debug("Error calling getName() method on {}: {}", 
+						item.getClass().getSimpleName(), e.getMessage());
+				}
+				
+				// For entities without getName() method, fall back to toString()
 				return item.toString();
 			} catch (final Exception e) {
 				LOGGER.warn("Error generating label for ComboBox item of type {}: {}",
