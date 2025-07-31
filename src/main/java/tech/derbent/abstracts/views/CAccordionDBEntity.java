@@ -22,7 +22,7 @@ public abstract class CAccordionDBEntity<EntityClass extends CEntityDB>
 
 	protected CAbstractService<EntityClass> entityService;
 
-	private List<String> EntityFields;
+	private List<String> entityFields;
 
 	private final ComboBoxDataProvider detailsDataProvider;
 
@@ -67,7 +67,7 @@ public abstract class CAccordionDBEntity<EntityClass extends CEntityDB>
 
 	public ComboBoxDataProvider getDetailsDataProvider() { return detailsDataProvider; }
 
-	public List<String> getEntityFields() { return EntityFields; }
+	public List<String> getEntityFields() { return entityFields; }
 
 	public void populateForm(final EntityClass entity) {
 		LOGGER.debug("Populating form with entity: {}", entity);
@@ -86,7 +86,7 @@ public abstract class CAccordionDBEntity<EntityClass extends CEntityDB>
 	// used if there is a specific save logic for the entity
 	public void saveEventHandler() {}
 
-	protected void setEntityFields(final List<String> fields) { EntityFields = fields; }
+	protected void setEntityFields(final List<String> fields) { entityFields = fields; }
 
 	protected void updatePanelEntityFields() {
 		// TODO Auto-generated method stub

@@ -30,14 +30,14 @@ Check [project_design_description.md](./project_design_description.md) file for 
 
 ## Table of Contents
 - [1. MVC Architecture Principles](#1-mvc-architecture-principles)
-- [2. Commenting Standards](#2-commenting-standards)
-- [3. Java Checks Before Submission](#3-java-checks-before-submission)
-- [4. Pull Request Checklist](#4-pull-request-checklist)
-- [5. Copilot Review Protocol](#5-copilot-review-protocol)
-- [6. Coding Styles & Best Practices](#6-coding-styles--best-practices)
-- [7. CSS Guidelines](#7-css-guidelines)
-- [8. Database Rules](#8-database-rules)
-- [9. Documentation & Modularity](#9-documentation--modularity)
+- [2. Development Environment Setup](#2-development-environment-setup)
+- [3. Commenting Standards](#3-commenting-standards)
+- [4. Security and Validation Standards](#4-security-and-validation-standards)
+- [5. Comprehensive Testing Requirements](#5-comprehensive-testing-requirements)
+- [6. Java Build and Quality Checks Before Submission](#6-java-build-and-quality-checks-before-submission)
+- [7. Pull Request Checklist](#7-pull-request-checklist)
+- [8. Copilot Review Protocol](#8-copilot-review-protocol)
+- [9. Coding Styles & Best Practices](#9-coding-styles--best-practices)
 - [10. Strict Prohibitions](#10-strict-prohibitions)
 - [11. Additional Best Practices](#11-additional-best-practices)
 - [Related Documentation](#related-documentation)
@@ -125,54 +125,119 @@ src/main/java/tech/derbent/
 - Implement CSRF protection for all forms
 
 
-## 5. Testing Requirements
+## 5. Comprehensive Testing Requirements
 
-- Write unit tests for all business logic and service methods
-- Use TestContainers for integration testing with PostgreSQL
-- Maintain test coverage above 80% for critical business logic
-- Test all validation scenarios and edge cases
+**Mandatory Testing Standards:**
+- **Unit Tests**: Write unit tests for ALL business logic and service methods
+- **Integration Tests**: Use TestContainers for integration testing with PostgreSQL
+- **Field Naming Tests**: ALWAYS verify field naming conventions match repository method expectations
+- **Repository Tests**: Test all `findBy` methods to ensure they work with actual field names
+- **Form Generation Tests**: Test `@MetaData` annotations generate forms correctly
+- **Validation Tests**: Test all validation scenarios and edge cases
+- **Exception Handling Tests**: Test graceful exception handling in UI components
+- **Null Safety Tests**: Test all methods with null inputs to prevent `NullPointerException`
+
+**Testing Coverage Requirements:**
+- Maintain test coverage above **80%** for critical business logic
+- Test all CRUD operations for entities
+- Test all form field bindings and validation
+- Test all ComboBox data providers work correctly
+- Test lazy loading scenarios and `@Transactional` boundaries
+- Test user authorization and access control
+
+**Testing Patterns:**
+```java
+// Example: Field naming compatibility test
+@Test
+void testRepositoryMethodMatchesFieldName() {
+    // Given: An entity with camelCase field naming
+    CCommentPriority priority = new CCommentPriority();
+    priority.setPriorityLevel(1);
+    
+    // When: Saving and querying by field name
+    priorityRepository.save(priority);
+    Optional<CCommentPriority> found = priorityRepository.findByPriorityLevel(1);
+    
+    // Then: Repository method should work without Hibernate errors
+    assertTrue(found.isPresent());
+    assertEquals(1, found.get().getPriorityLevel());
+}
+
+// Example: Form generation test
+@Test
+void testMetaDataFormGeneration() {
+    // Test that @MetaData annotations properly generate form fields
+    Component form = CEntityFormBuilder.buildForm(CActivity.class, binder, fieldList);
+    assertNotNull(form);
+    // Verify form contains expected fields with correct labels
+}
+```
+
+**Manual Testing Requirements:**
+- Test all UI workflows end-to-end after any field or entity changes
+- Verify ComboBox selections work correctly with data providers
+- Test form validation messages display appropriately
+- Verify all dialog interactions work as expected
+- Test accessibility and responsive design
 - Mock external dependencies appropriately
+- Include manual verification tests for complex UI interactions
 
 ---
 
-## 6. Java Build and Quality Checks
+## 6. Java Build and Quality Checks Before Submission
 
-- Compile using `mvn clean install` or your build tool.
-- Run static analysis: CheckStyle, PMD, or SonarLint.
-- Run unit and integration tests. Ensure coverage for all controller logic.
-- Confirm no business logic is present in View classes.
-- Check for unused imports and variables.
-- Validate all forms of input in controllers.
-
----
-
+**Mandatory Pre-Submission Checks:**
+- Compile using `mvn clean install` and ensure no build errors
+- Run static analysis: CheckStyle, PMD, or SonarLint
+- Verify **ALL field names follow camelCase convention** to prevent Hibernate query errors
+- Run unit and integration tests with coverage above 80%
+- Confirm no business logic is present in View classes (proper MVC separation)
+- Check for unused imports and variables
+- Validate all forms of input in controllers and services
+- Test all repository methods work with actual field names (no `findByPriorityLevel` vs `PriorityLevel` mismatches)
 
 ## 7. Pull Request Checklist
 
+**Code Quality and Architecture:**
+- [ ] Code follows MVC separation principles
+- [ ] All field names use proper camelCase convention (critical for Hibernate compatibility)
+- [ ] Methods and classes are properly commented with JavaDoc
+- [ ] All Copilot-generated code has been reviewed and tested
+- [ ] All Java quality checks passed: compilation, static analysis, testing
+- [ ] No hardcoded values in controllers or views
+- [ ] UI logic (Vaadin) does not leak into model/service layers
+- [ ] Database changes include proper migrations and sample data
 
-- Code follows MVC separation principles
-- Methods and classes are properly commented with JavaDoc
-- All Copilot-generated code has been reviewed and tested
-- All Java quality checks passed: compilation, static analysis, testing
-- No hardcoded values in controllers or views
-- UI logic (Vaadin) does not leak into model/service layers
-- Database changes include proper migrations and sample data
-
----
-
+**Testing Requirements:**
+- [ ] Unit tests written for all business logic and service methods
+- [ ] Repository method naming verified against actual field names
+- [ ] Form generation tests pass with `@MetaData` annotations
+- [ ] Integration tests pass with TestContainers and PostgreSQL
+- [ ] Test coverage above 80% for critical business logic
+- [ ] All validation scenarios and edge cases tested
 
 ## 8. Copilot Review Protocol
 
 After accepting Copilot suggestions, manually review for:
+- **Field naming compliance**: Ensure all fields follow camelCase to prevent repository method failures
 - Correct MVC placement and architecture compliance
 - Security considerations (input validation, access control)
 - Performance and scalability implications
 - Proper exception handling and error messages
 - Code quality and maintainability standards
+- Repository method compatibility with actual field names
 
 ---
 
 ## 9. Coding Styles & Best Practices
+
+**Field and Variable Naming Conventions:**
+- **CRITICAL**: All private fields MUST follow Java camelCase naming conventions
+- Field names MUST start with a lowercase letter (e.g., `priorityLevel`, NOT `PriorityLevel`)
+- Use descriptive field names that clearly indicate purpose (e.g., `entityFields`, NOT `EntityFields`)
+- Constants should be UPPER_CASE with underscores (e.g., `MAX_FILE_SIZE`, `LOGGER`)
+- Repository method names must match field names exactly (e.g., `findByPriorityLevel()` requires field `priorityLevel`)
+- **Before submitting ANY code**: verify all field names follow camelCase convention to prevent Hibernate query failures
 
 **General Principles:**
 - Use `final` keyword wherever possible (variables, parameters, methods, classes)
@@ -558,23 +623,22 @@ class ManualVerificationTest {
 
 For comprehensive development guidance, refer to these additional documents:
 
-### Core Architecture & Design
-- [Project Design Description](./project_design_description.md) - Complete project requirements and architecture
-- [Enhanced Activity Management Requirements](./enhanced-activity-management-requirements.md) - Activity system specifications
+### Available Documentation in `/docs` folder:
+- [Auxiliary Service Methods Usage](./docs/auxiliary-service-methods-usage.md) - Helper methods and utilities
 
-### UI/UX Implementation Guides  
-- [CSS Guidelines](./CSS_GUIDELINES.md) - Complete styling standards and Vaadin theming
-- [CPanelActivityDescription Implementation](./CPANEL_ACTIVITY_DESCRIPTION_IMPLEMENTATION.md) - Entity panel patterns
-- [User Profile Dialog Implementation](./user-profile-dialog-implementation.md) - Dialog patterns
-- [Hierarchical Side Menu Implementation](./HIERARCHICAL_SIDE_MENU_IMPLEMENTATION.md) - Navigation implementation
+### Documentation to be created as needed:
+- Project Design Description - Complete project requirements and architecture
+- Enhanced Activity Management Requirements - Activity system specifications  
+- CSS Guidelines - Complete styling standards and Vaadin theming
+- Entity Panel Implementation Patterns - Panel organization patterns
+- Dialog Implementation Patterns - Standard dialog patterns
+- Navigation Implementation Guide - Menu and routing patterns
+- Form Building with Annotations - MetaData annotation usage
+- JPA Performance Optimization - Lazy loading best practices
+- Multi-tenant Patterns - Company association patterns
+- Activity Domain Implementation - Activity enhancement patterns
 
-### Technical Implementation Patterns
-- [Annotation-Based ComboBox Data Providers](./ANNOTATION_BASED_COMBOBOX_DATA_PROVIDERS.md) - Form building with annotations
-- [Comprehensive Lazy Loading Fix](./COMPREHENSIVE_LAZY_LOADING_FIX.md) - JPA performance optimization
-- [User Company Association Requirements](./user-company-association-requirements.md) - Multi-tenant patterns
-
-### Development Best Practices
-- [CActivity Enhancement Summary](./cactivity-enhancement-summary.md) - Activity domain implementation patterns
+**Note**: Create documentation files in the `/docs` folder as you implement new features or fix complex issues. Each major architectural pattern should have its own documentation file.
 
 ---
 
