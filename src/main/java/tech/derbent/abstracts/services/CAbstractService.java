@@ -183,4 +183,49 @@ public abstract class CAbstractService<EntityClass extends CEntityDB<EntityClass
         }
         // Add more validation logic in subclasses if needed
     }
+
+    /**
+     * Generic search method using reflection for any field.
+     * This provides common search functionality for all entity types.
+     * 
+     * @param fieldName the name of the field to search by
+     * @param fieldValue the value to search for
+     * @param pageable pagination information
+     * @return list of entities matching the search criteria
+     */
+    @Transactional(readOnly = true)
+    public List<EntityClass> findByField(final String fieldName, final Object fieldValue, final Pageable pageable) {
+        return CGenericSearchService.findByField(this, fieldName, fieldValue, pageable);
+    }
+
+    /**
+     * Generic search method using reflection for any field with default pagination.
+     * 
+     * @param fieldName the name of the field to search by
+     * @param fieldValue the value to search for
+     * @return list of entities matching the search criteria
+     */
+    @Transactional(readOnly = true)
+    public List<EntityClass> findByField(final String fieldName, final Object fieldValue) {
+        return findByField(fieldName, fieldValue, Pageable.unpaged());
+    }
+
+    /**
+     * Gets all searchable field names for this entity type.
+     * 
+     * @return list of searchable field names
+     */
+    public List<String> getSearchableFields() {
+        return CGenericSearchService.getSearchableFields(getEntityClass());
+    }
+
+    /**
+     * Checks if this entity type has a specific field.
+     * 
+     * @param fieldName the field name to check
+     * @return true if the field exists, false otherwise
+     */
+    public boolean hasField(final String fieldName) {
+        return CGenericSearchService.hasField(getEntityClass(), fieldName);
+    }
 }

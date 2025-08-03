@@ -1,8 +1,10 @@
 package tech.derbent.abstracts.services;
 
 import java.time.Clock;
+import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 
 import tech.derbent.abstracts.domains.CEntityNamed;
@@ -183,5 +185,72 @@ public abstract class CAbstractNamedEntityService<EntityClass extends CEntityNam
         } catch (final Exception e) {
             throw new RuntimeException("Failed to create instance of " + getEntityClass().getName(), e);
         }
+    }
+
+    /**
+     * Enhanced search by name with partial matching using generic search functionality.
+     * This method provides case-insensitive partial name matching.
+     * 
+     * @param namePattern the name pattern to search for (supports partial matching)
+     * @param pageable pagination information
+     * @return list of entities with names matching the pattern
+     */
+    @Transactional(readOnly = true)
+    public List<EntityClass> findByNamePattern(final String namePattern, final Pageable pageable) {
+        LOGGER.debug("findByNamePattern called with pattern: {} for {}", namePattern, getClass().getSimpleName());
+
+        if ((namePattern == null) || namePattern.trim().isEmpty()) {
+            LOGGER.warn("findByNamePattern called with null or empty pattern for {}", getClass().getSimpleName());
+            return List.of();
+        }
+
+        try {
+            return list(pageable, CGenericSearchService.createNameSpec(namePattern)).getContent();
+        } catch (final Exception e) {
+            LOGGER.error("Error searching by name pattern '{}' in {}: {}", namePattern, getClass().getSimpleName(),
+                    e.getMessage(), e);
+            throw new RuntimeException("Failed to search by name pattern", e);
+        }
+    }
+
+    /**
+     * Enhanced search by name with partial matching using default pagination.
+     * 
+     * @param namePattern the name pattern to search for
+     * @return list of entities with names matching the pattern
+     */
+    @Transactional(readOnly = true)
+    public List<EntityClass> findByNamePattern(final String namePattern) {
+        return findByNamePattern(namePattern, Pageable.unpaged());
+    }
+
+    /**
+     * Search entities by description pattern.
+     * 
+     * @param descriptionPattern the description pattern to search for
+     * @param pageable pagination information
+     * @return list of entities with descriptions matching the pattern
+     */
+    @Transactional(readOnly = true)
+    public List<EntityClass> findByDescriptionPattern(final String descriptionPattern, final Pageable pageable) {
+        LOGGER.debug("findByDescriptionPattern called with pattern: {} for {}", descriptionPattern, getClass().getSimpleName());
+
+        if ((descriptionPattern == null) || descriptionPattern.trim().isEmpty()) {
+            LOGGER.warn("findByDescriptionPattern called with null or empty pattern for {}", getClass().getSimpleName());
+            return List.of();
+        }
+
+        return findByField("description", descriptionPattern, pageable);
+    }
+
+    /**
+     * Search entities by description pattern with default pagination.
+     * 
+     * @param descriptionPattern the description pattern to search for
+     * @return list of entities with descriptions matching the pattern
+     */
+    @Transactional(readOnly = true)
+    public List<EntityClass> findByDescriptionPattern(final String descriptionPattern) {
+        return findByDescriptionPattern(descriptionPattern, Pageable.unpaged());
     }
 }

@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import tech.derbent.abstracts.domains.CEntityOfProject;
 import tech.derbent.projects.domain.CProject;
+import tech.derbent.users.domain.CUser;
 
 /**
  * CEntityOfProjectService - Abstract service class for entities that extend CEntityOfProject. Layer: Service (MVC)
@@ -226,6 +227,145 @@ public abstract class CEntityOfProjectService<EntityClass extends CEntityOfProje
             return entity;
         } catch (final Exception e) {
             throw new RuntimeException("Failed to create instance of " + getEntityClass().getName(), e);
+        }
+    }
+
+    /**
+     * Enhanced search by assignedTo user using generic search functionality.
+     * This method provides consistent search behavior across all project entities.
+     * 
+     * @param user the assigned user to search for
+     * @param pageable pagination information
+     * @return list of entities assigned to the user
+     */
+    @Transactional(readOnly = true)
+    public List<EntityClass> findByAssignedTo(final CUser user, final Pageable pageable) {
+        LOGGER.info("findByAssignedTo called with user: {} for {}", 
+                   user != null ? user.getName() : "null", getClass().getSimpleName());
+
+        if (user == null) {
+            LOGGER.warn("findByAssignedTo called with null user for {}", getClass().getSimpleName());
+            return List.of();
+        }
+
+        try {
+            return list(pageable, CGenericSearchService.createAssignedToSpec(user)).getContent();
+        } catch (final Exception e) {
+            LOGGER.error("Error finding entities by assignedTo user '{}' in {}: {}", 
+                        user.getName(), getClass().getSimpleName(), e.getMessage(), e);
+            throw new RuntimeException("Failed to find entities by assignedTo user", e);
+        }
+    }
+
+    /**
+     * Enhanced search by assignedTo user with default pagination.
+     * 
+     * @param user the assigned user to search for
+     * @return list of entities assigned to the user
+     */
+    @Transactional(readOnly = true)
+    public List<EntityClass> findByAssignedTo(final CUser user) {
+        return findByAssignedTo(user, Pageable.unpaged());
+    }
+
+    /**
+     * Enhanced search by createdBy user using generic search functionality.
+     * This method provides consistent search behavior across all project entities.
+     * 
+     * @param user the creator user to search for
+     * @param pageable pagination information
+     * @return list of entities created by the user
+     */
+    @Transactional(readOnly = true)
+    public List<EntityClass> findByCreatedBy(final CUser user, final Pageable pageable) {
+        LOGGER.info("findByCreatedBy called with user: {} for {}", 
+                   user != null ? user.getName() : "null", getClass().getSimpleName());
+
+        if (user == null) {
+            LOGGER.warn("findByCreatedBy called with null user for {}", getClass().getSimpleName());
+            return List.of();
+        }
+
+        try {
+            return list(pageable, CGenericSearchService.createCreatedBySpec(user)).getContent();
+        } catch (final Exception e) {
+            LOGGER.error("Error finding entities by createdBy user '{}' in {}: {}", 
+                        user.getName(), getClass().getSimpleName(), e.getMessage(), e);
+            throw new RuntimeException("Failed to find entities by createdBy user", e);
+        }
+    }
+
+    /**
+     * Enhanced search by createdBy user with default pagination.
+     * 
+     * @param user the creator user to search for
+     * @return list of entities created by the user
+     */
+    @Transactional(readOnly = true)
+    public List<EntityClass> findByCreatedBy(final CUser user) {
+        return findByCreatedBy(user, Pageable.unpaged());
+    }
+
+    /**
+     * Enhanced search by project using generic search functionality.
+     * This method provides consistent project search behavior with proper lazy loading.
+     * 
+     * @param project the project to search for
+     * @param pageable pagination information
+     * @return list of entities belonging to the project
+     */
+    @Transactional(readOnly = true)
+    public List<EntityClass> findByProjectGeneric(final CProject project, final Pageable pageable) {
+        LOGGER.info("findByProjectGeneric called with project: {} for {}", 
+                   project != null ? project.getName() : "null", getClass().getSimpleName());
+
+        if (project == null) {
+            LOGGER.warn("findByProjectGeneric called with null project for {}", getClass().getSimpleName());
+            return List.of();
+        }
+
+        try {
+            return list(pageable, CGenericSearchService.createProjectSpec(project)).getContent();
+        } catch (final Exception e) {
+            LOGGER.error("Error finding entities by project '{}' in {}: {}", 
+                        project.getName(), getClass().getSimpleName(), e.getMessage(), e);
+            throw new RuntimeException("Failed to find entities by project", e);
+        }
+    }
+
+    /**
+     * Enhanced search by project with default pagination.
+     * 
+     * @param project the project to search for
+     * @return list of entities belonging to the project
+     */
+    @Transactional(readOnly = true)
+    public List<EntityClass> findByProjectGeneric(final CProject project) {
+        return findByProjectGeneric(project, Pageable.unpaged());
+    }
+
+    /**
+     * Centralized initialization logic for all CEntityOfProject entities.
+     * This method consolidates common initialization patterns to avoid code duplication.
+     */
+    protected void initializeProjectEntityDefaults(final EntityClass entity) {
+        if (entity == null) {
+            return;
+        }
+
+        try {
+            // Set creation timestamp if not already set
+            if (entity.getCreatedDate() == null) {
+                entity.setCreatedDate(java.time.LocalDateTime.now());
+            }
+
+            // Update last modified timestamp
+            entity.setLastModifiedDate(java.time.LocalDateTime.now());
+
+            LOGGER.debug("Initialized defaults for project entity: {}", entity.getName());
+        } catch (final Exception e) {
+            LOGGER.warn("Error initializing project entity defaults for: {}", 
+                       entity.getName(), e);
         }
     }
 }
