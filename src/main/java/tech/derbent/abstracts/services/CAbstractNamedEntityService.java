@@ -188,11 +188,13 @@ public abstract class CAbstractNamedEntityService<EntityClass extends CEntityNam
     }
 
     /**
-     * Enhanced search by name with partial matching using generic search functionality.
-     * This method provides case-insensitive partial name matching.
+     * Enhanced search by name with partial matching using generic search functionality. This method provides
+     * case-insensitive partial name matching.
      * 
-     * @param namePattern the name pattern to search for (supports partial matching)
-     * @param pageable pagination information
+     * @param namePattern
+     *            the name pattern to search for (supports partial matching)
+     * @param pageable
+     *            pagination information
      * @return list of entities with names matching the pattern
      */
     @Transactional(readOnly = true)
@@ -216,7 +218,8 @@ public abstract class CAbstractNamedEntityService<EntityClass extends CEntityNam
     /**
      * Enhanced search by name with partial matching using default pagination.
      * 
-     * @param namePattern the name pattern to search for
+     * @param namePattern
+     *            the name pattern to search for
      * @return list of entities with names matching the pattern
      */
     @Transactional(readOnly = true)
@@ -227,16 +230,20 @@ public abstract class CAbstractNamedEntityService<EntityClass extends CEntityNam
     /**
      * Search entities by description pattern.
      * 
-     * @param descriptionPattern the description pattern to search for
-     * @param pageable pagination information
+     * @param descriptionPattern
+     *            the description pattern to search for
+     * @param pageable
+     *            pagination information
      * @return list of entities with descriptions matching the pattern
      */
     @Transactional(readOnly = true)
     public List<EntityClass> findByDescriptionPattern(final String descriptionPattern, final Pageable pageable) {
-        LOGGER.debug("findByDescriptionPattern called with pattern: {} for {}", descriptionPattern, getClass().getSimpleName());
+        LOGGER.debug("findByDescriptionPattern called with pattern: {} for {}", descriptionPattern,
+                getClass().getSimpleName());
 
         if ((descriptionPattern == null) || descriptionPattern.trim().isEmpty()) {
-            LOGGER.warn("findByDescriptionPattern called with null or empty pattern for {}", getClass().getSimpleName());
+            LOGGER.warn("findByDescriptionPattern called with null or empty pattern for {}",
+                    getClass().getSimpleName());
             return List.of();
         }
 
@@ -246,7 +253,8 @@ public abstract class CAbstractNamedEntityService<EntityClass extends CEntityNam
     /**
      * Search entities by description pattern with default pagination.
      * 
-     * @param descriptionPattern the description pattern to search for
+     * @param descriptionPattern
+     *            the description pattern to search for
      * @return list of entities with descriptions matching the pattern
      */
     @Transactional(readOnly = true)

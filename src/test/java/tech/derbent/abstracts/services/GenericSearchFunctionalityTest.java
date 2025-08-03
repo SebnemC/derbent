@@ -22,8 +22,8 @@ import tech.derbent.decisions.service.CDecisionService;
 import tech.derbent.decisions.domain.CDecision;
 
 /**
- * Test class for generic search functionality in abstract service classes.
- * Verifies that the reflection-based search methods work correctly.
+ * Test class for generic search functionality in abstract service classes. Verifies that the reflection-based search
+ * methods work correctly.
  */
 @SpringBootTest
 @ActiveProfiles("test")
@@ -110,10 +110,10 @@ class GenericSearchFunctionalityTest {
     void testPaginatedGenericSearch() {
         // Test paginated search functionality
         Pageable pageable = PageRequest.of(0, 10);
-        
+
         List<CProject> paginatedProjects = projectService.findByNamePattern("Generic Search", pageable);
         assertFalse(paginatedProjects.isEmpty(), "Should find projects with pagination");
-        
+
         List<CDecision> paginatedDecisions = decisionService.findByAssignedTo(testUser, pageable);
         assertFalse(paginatedDecisions.isEmpty(), "Should find decisions with pagination");
     }

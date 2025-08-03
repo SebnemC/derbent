@@ -22,8 +22,8 @@ import tech.derbent.users.view.CUsersView;
 /**
  * SaveCancelFunctionalityTest - Tests save/cancel functionality inheritance for all entity views.
  * 
- * This test verifies that all main entity views properly extend abstract classes
- * and inherit save/cancel functionality from the abstract base classes.
+ * This test verifies that all main entity views properly extend abstract classes and inherit save/cancel functionality
+ * from the abstract base classes.
  */
 @SpringBootTest
 @TestPropertySource(properties = { "spring.datasource.url=jdbc:h2:mem:testdb",
@@ -31,8 +31,8 @@ import tech.derbent.users.view.CUsersView;
 public class SaveCancelFunctionalityTest {
 
     /**
-     * Test that Activities view can be instantiated and has save/cancel functionality.
-     * CActivitiesView extends CProjectAwareMDPage which inherits save/cancel from CAbstractEntityDBPage.
+     * Test that Activities view can be instantiated and has save/cancel functionality. CActivitiesView extends
+     * CProjectAwareMDPage which inherits save/cancel from CAbstractEntityDBPage.
      */
     @Test
     void testActivitiesViewSaveCancelInheritance() {
@@ -45,8 +45,8 @@ public class SaveCancelFunctionalityTest {
     }
 
     /**
-     * Test that Decisions view can be instantiated and has save/cancel functionality.
-     * CDecisionsView extends CProjectAwareMDPage which inherits save/cancel from CAbstractEntityDBPage.
+     * Test that Decisions view can be instantiated and has save/cancel functionality. CDecisionsView extends
+     * CProjectAwareMDPage which inherits save/cancel from CAbstractEntityDBPage.
      */
     @Test
     void testDecisionsViewSaveCancelInheritance() {
@@ -59,8 +59,8 @@ public class SaveCancelFunctionalityTest {
     }
 
     /**
-     * Test that Orders view can be instantiated and has save/cancel functionality.
-     * COrdersView extends CProjectAwareMDPage which inherits save/cancel from CAbstractEntityDBPage.
+     * Test that Orders view can be instantiated and has save/cancel functionality. COrdersView extends
+     * CProjectAwareMDPage which inherits save/cancel from CAbstractEntityDBPage.
      */
     @Test
     void testOrdersViewSaveCancelInheritance() {
@@ -73,8 +73,8 @@ public class SaveCancelFunctionalityTest {
     }
 
     /**
-     * Test that Projects view can be instantiated and has save/cancel functionality.
-     * CProjectsView extends CAbstractNamedEntityPage which inherits save/cancel from CAbstractEntityDBPage.
+     * Test that Projects view can be instantiated and has save/cancel functionality. CProjectsView extends
+     * CAbstractNamedEntityPage which inherits save/cancel from CAbstractEntityDBPage.
      */
     @Test
     void testProjectsViewSaveCancelInheritance() {
@@ -87,8 +87,8 @@ public class SaveCancelFunctionalityTest {
     }
 
     /**
-     * Test that Users view can be instantiated and has save/cancel functionality.
-     * CUsersView extends CAbstractNamedEntityPage which inherits save/cancel from CAbstractEntityDBPage.
+     * Test that Users view can be instantiated and has save/cancel functionality. CUsersView extends
+     * CAbstractNamedEntityPage which inherits save/cancel from CAbstractEntityDBPage.
      */
     @Test
     void testUsersViewSaveCancelInheritance() {
@@ -96,7 +96,8 @@ public class SaveCancelFunctionalityTest {
         final CProjectService mockProjectService = mock(CProjectService.class);
         final CSessionService mockSessionService = mock(CSessionService.class);
 
-        final CUsersView usersView = new CUsersView(mockUserService, mockProjectService, null, null, mockSessionService);
+        final CUsersView usersView = new CUsersView(mockUserService, mockProjectService, null, null,
+                mockSessionService);
         assertNotNull(usersView, "Users view should be instantiable");
         // The view inherits save/cancel functionality from CAbstractNamedEntityPage -> CAbstractEntityDBPage
     }

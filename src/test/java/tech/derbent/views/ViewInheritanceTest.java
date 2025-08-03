@@ -16,8 +16,8 @@ import tech.derbent.users.view.CUsersView;
 /**
  * ViewInheritanceTest - Tests that all entity views properly inherit save/cancel functionality.
  * 
- * This test verifies that all main entity views extend the correct abstract classes
- * that provide save/cancel functionality without requiring Spring context.
+ * This test verifies that all main entity views extend the correct abstract classes that provide save/cancel
+ * functionality without requiring Spring context.
  */
 public class ViewInheritanceTest {
 

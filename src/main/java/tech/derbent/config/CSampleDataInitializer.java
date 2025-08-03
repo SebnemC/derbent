@@ -591,6 +591,7 @@ public class CSampleDataInitializer implements ApplicationRunner {
             throw new RuntimeException("Failed to create sample orders", e);
         }
     }
+
     private void createCriticalSecurityRisk() {
         final CProject project = findProjectByName("Customer Experience Enhancement");
 

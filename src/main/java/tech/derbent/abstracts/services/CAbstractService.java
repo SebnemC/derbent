@@ -185,12 +185,15 @@ public abstract class CAbstractService<EntityClass extends CEntityDB<EntityClass
     }
 
     /**
-     * Generic search method using reflection for any field.
-     * This provides common search functionality for all entity types.
+     * Generic search method using reflection for any field. This provides common search functionality for all entity
+     * types.
      * 
-     * @param fieldName the name of the field to search by
-     * @param fieldValue the value to search for
-     * @param pageable pagination information
+     * @param fieldName
+     *            the name of the field to search by
+     * @param fieldValue
+     *            the value to search for
+     * @param pageable
+     *            pagination information
      * @return list of entities matching the search criteria
      */
     @Transactional(readOnly = true)
@@ -201,8 +204,10 @@ public abstract class CAbstractService<EntityClass extends CEntityDB<EntityClass
     /**
      * Generic search method using reflection for any field with default pagination.
      * 
-     * @param fieldName the name of the field to search by
-     * @param fieldValue the value to search for
+     * @param fieldName
+     *            the name of the field to search by
+     * @param fieldValue
+     *            the value to search for
      * @return list of entities matching the search criteria
      */
     @Transactional(readOnly = true)
@@ -222,7 +227,8 @@ public abstract class CAbstractService<EntityClass extends CEntityDB<EntityClass
     /**
      * Checks if this entity type has a specific field.
      * 
-     * @param fieldName the field name to check
+     * @param fieldName
+     *            the field name to check
      * @return true if the field exists, false otherwise
      */
     public boolean hasField(final String fieldName) {
