@@ -31,6 +31,7 @@ import com.vaadin.flow.theme.lumo.LumoUtility.Padding;
 import com.vaadin.flow.theme.lumo.LumoUtility.TextColor;
 
 import tech.derbent.abstracts.views.CButton;
+import tech.derbent.base.ui.utils.CIconColorMapper;
 
 /**
  * CHierarchicalSideMenu - A hierarchical side menu component with up to 4 levels of navigation. Layer: View (MVC)
@@ -71,17 +72,20 @@ public final class CHierarchicalSideMenu extends Div implements AfterNavigationO
             // Check if this item represents the current page
             final boolean isCurrentPage = (path != null) && !path.trim().isEmpty() && (currentRoute != null)
                     && currentRoute.equals(path.trim());
-            // Add icon with consistent sizing
+            // Add icon with consistent sizing and colorful styling
             Icon icon;
 
             if ((iconName != null) && !iconName.trim().isEmpty()) {
                 icon = new Icon(iconName);
+                // Apply colorful styling to the icon
+                final String iconColor = CIconColorMapper.getIconColor(iconName);
+                icon.getStyle().set("color", iconColor);
             } else {
                 // Use a transparent placeholder icon to maintain consistent spacing
                 icon = VaadinIcon.CIRCLE.create();
                 icon.getStyle().set("visibility", "hidden");
             }
-            icon.addClassNames(IconSize.MEDIUM, isCurrentPage ? TextColor.PRIMARY : TextColor.SECONDARY);
+            icon.addClassNames(IconSize.MEDIUM);
             icon.getStyle().set("min-width", "24px").set("min-height", "24px");
             itemLayout.add(icon);
             // Add text with highlighting
@@ -123,6 +127,17 @@ public final class CHierarchicalSideMenu extends Div implements AfterNavigationO
                 itemLayout.getElement().addEventListener("mouseleave",
                         e -> itemLayout.getElement().getStyle().remove("background-color"));
             }
+            
+            // Add hover effects for the icon to enhance interactivity
+            if ((iconName != null) && !iconName.trim().isEmpty()) {
+                final String originalColor = CIconColorMapper.getIconColor(iconName);
+                final String hoverColor = CIconColorMapper.getIconHoverColor(iconName);
+                itemLayout.getElement().addEventListener("mouseenter",
+                        e -> icon.getStyle().set("color", hoverColor));
+                itemLayout.getElement().addEventListener("mouseleave",
+                        e -> icon.getStyle().set("color", originalColor));
+            }
+            
             return itemLayout;
         }
 
@@ -427,6 +442,8 @@ public final class CHierarchicalSideMenu extends Div implements AfterNavigationO
             levelIcon = VaadinIcon.ARROW_LEFT.create();
             levelIcon.addClassNames(IconSize.MEDIUM);
             levelIcon.getStyle().set("min-width", "24px").set("min-height", "24px");
+            // Apply colorful styling to back arrow
+            levelIcon.getStyle().set("color", "#6c757d");
             final CButton backButton = new CButton(levelIcon, this::handleBackButtonClick);
             backButton.addClassNames(BACK_BUTTON_CLASS, Margin.Right.MEDIUM);
             backButton.addThemeVariants(com.vaadin.flow.component.button.ButtonVariant.LUMO_TERTIARY_INLINE);
@@ -435,8 +452,10 @@ public final class CHierarchicalSideMenu extends Div implements AfterNavigationO
         } else {
             // Add app icon for root level to prevent label jumping
             levelIcon = VaadinIcon.CUBES.create();
-            levelIcon.addClassNames(IconSize.MEDIUM, TextColor.PRIMARY, Margin.Right.MEDIUM);
+            levelIcon.addClassNames(IconSize.MEDIUM, Margin.Right.MEDIUM);
             levelIcon.getStyle().set("min-width", "24px").set("min-height", "24px");
+            // Apply colorful styling to the app icon
+            levelIcon.getStyle().set("color", "#007bff");
             headerLayout.add(levelIcon);
         }
         // Add level title with consistent font size

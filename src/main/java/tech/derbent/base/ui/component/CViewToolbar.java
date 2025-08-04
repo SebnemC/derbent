@@ -35,6 +35,7 @@ import com.vaadin.flow.theme.lumo.LumoUtility.Margin;
 
 import tech.derbent.abstracts.interfaces.CProjectListChangeListener;
 import tech.derbent.abstracts.views.CButton;
+import tech.derbent.base.ui.utils.CIconColorMapper;
 import tech.derbent.projects.domain.CProject;
 import tech.derbent.session.service.CSessionService;
 import tech.derbent.session.service.LayoutService;
@@ -160,17 +161,17 @@ public final class CViewToolbar extends Composite<Header> implements CProjectLis
     private CButton createHomeButton() {
         final Icon homeIcon = VaadinIcon.HOME.create();
         homeIcon.addClassNames(IconSize.MEDIUM);
-        // Add colorful styling to the home icon
-        homeIcon.getStyle().set("color", "var(--lumo-primary-color)");
+        // Use consistent color mapping for the home icon
+        homeIcon.getStyle().set("color", CIconColorMapper.getIconColor("vaadin:home"));
         final CButton homeButton = new CButton(homeIcon);
         homeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY, ButtonVariant.LUMO_ICON);
         homeButton.getElement().setAttribute("title", "Go to Dashboard");
         homeButton.addClassNames(Margin.NONE);
         // Add hover effect for better UX
         homeButton.getElement().addEventListener("mouseenter",
-                e -> homeIcon.getStyle().set("color", "var(--lumo-primary-color-50pct)"));
+                e -> homeIcon.getStyle().set("color", CIconColorMapper.getIconHoverColor("vaadin:home")));
         homeButton.getElement().addEventListener("mouseleave",
-                e -> homeIcon.getStyle().set("color", "var(--lumo-primary-color)"));
+                e -> homeIcon.getStyle().set("color", CIconColorMapper.getIconColor("vaadin:home")));
         // Handle home button click - navigate to dashboard
         homeButton.addClickListener(event -> {
             LOGGER.info("Home button clicked, navigating to dashboard");
@@ -426,17 +427,22 @@ public final class CViewToolbar extends Composite<Header> implements CProjectLis
         final var quickAccessDiv = new Div();
         quickAccessDiv.addClassNames(Display.FLEX, AlignItems.CENTER, Gap.SMALL);
         
-        // Meetings icon - green
-        final var meetingsButton = createColorfulIconButton(VaadinIcon.CALENDAR, "Meetings", "#28a745", "meetings");
+        // Use the same icons and colors as defined in the @Menu annotations for consistency
+        // Meetings icon - use same as in CMeetingsView
+        final var meetingsButton = createColorfulIconButton(VaadinIcon.GROUP, "Meetings", 
+                CIconColorMapper.getIconColor("vaadin:group"), "meetings");
         
-        // Activities icon - blue
-        final var activitiesButton = createColorfulIconButton(VaadinIcon.TASKS, "Activities", "#007bff", "activities");
+        // Activities icon - use same as in CActivitiesView
+        final var activitiesButton = createColorfulIconButton(VaadinIcon.CALENDAR_CLOCK, "Activities", 
+                CIconColorMapper.getIconColor("vaadin:calendar-clock"), "activities");
         
-        // Projects icon - orange
-        final var projectsButton = createColorfulIconButton(VaadinIcon.FOLDER, "Projects", "#fd7e14", "projects");
+        // Projects icon - use same as in CProjectsView
+        final var projectsButton = createColorfulIconButton(VaadinIcon.BRIEFCASE, "Projects", 
+                CIconColorMapper.getIconColor("vaadin:briefcase"), "projects");
         
-        // Users icon - purple
-        final var usersButton = createColorfulIconButton(VaadinIcon.USERS, "Users", "#6f42c1", "users");
+        // Users icon - use same as in CUsersView
+        final var usersButton = createColorfulIconButton(VaadinIcon.USERS, "Users", 
+                CIconColorMapper.getIconColor("vaadin:users"), "users");
         
         quickAccessDiv.add(meetingsButton, activitiesButton, projectsButton, usersButton);
         return quickAccessDiv;
@@ -455,13 +461,12 @@ public final class CViewToolbar extends Composite<Header> implements CProjectLis
         button.getElement().setAttribute("title", tooltip);
         button.addClassNames(Margin.NONE);
         
-        // Add hover effect
-        final String originalColor = color;
-        final String hoverColor = color + "99"; // Add transparency for hover
+        // Add hover effect using the color mapper for consistency
+        final String hoverColor = color + "aa"; // Add transparency for hover
         button.getElement().addEventListener("mouseenter",
                 e -> icon.getStyle().set("color", hoverColor));
         button.getElement().addEventListener("mouseleave",
-                e -> icon.getStyle().set("color", originalColor));
+                e -> icon.getStyle().set("color", color));
         
         // Navigate to route
         button.addClickListener(event -> {
