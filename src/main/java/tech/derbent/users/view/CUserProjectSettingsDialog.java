@@ -1,11 +1,16 @@
 package tech.derbent.users.view;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.function.Consumer;
 
+import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.textfield.BigDecimalField;
 import com.vaadin.flow.component.textfield.TextField;
 
 import tech.derbent.abstracts.views.CDBEditDialog;
@@ -31,6 +36,19 @@ public class CUserProjectSettingsDialog extends CDBEditDialog<CUserProjectSettin
     private TextField rolesField;
 
     private TextField permissionsField;
+
+    // Resource allocation fields
+    private BigDecimalField allocatedHoursField;
+
+    private BigDecimalField hourlyRateField;
+
+    private DatePicker startDatePicker;
+
+    private DatePicker dueDatePicker;
+
+    private BigDecimalField workloadPercentageField;
+
+    private Checkbox isActiveCheckbox;
 
     public CUserProjectSettingsDialog(final CProjectService projectService, final CUserProjectSettings settings,
             final CUser user, final Consumer<CUserProjectSettings> onSave) {
@@ -110,7 +128,32 @@ public class CUserProjectSettingsDialog extends CDBEditDialog<CUserProjectSettin
         permissionsField = new TextField("Permissions");
         permissionsField.setPlaceholder("Enter permissions separated by commas (e.g., READ, WRITE, DELETE)");
         permissionsField.setHelperText("Comma-separated list of permissions for this project");
-        formLayout.add(projectComboBox, rolesField, permissionsField);
+
+        // Resource allocation fields (addressing "relqtwd" - Resource aLlocation Quantity With Time Due)
+        allocatedHoursField = new BigDecimalField("Allocated Hours");
+        allocatedHoursField.setPlaceholder("0.00");
+        allocatedHoursField.setHelperText("Total hours allocated to this user for this project");
+
+        hourlyRateField = new BigDecimalField("Hourly Rate");
+        hourlyRateField.setPlaceholder("0.00");
+        hourlyRateField.setHelperText("Hourly rate for this user on this project");
+
+        startDatePicker = new DatePicker("Start Date");
+        startDatePicker.setHelperText("Date when user assignment starts");
+
+        dueDatePicker = new DatePicker("Due Date");
+        dueDatePicker.setHelperText("Date when user assignment is due to complete");
+
+        workloadPercentageField = new BigDecimalField("Workload %");
+        workloadPercentageField.setPlaceholder("0.00");
+        workloadPercentageField.setHelperText("Percentage of user's time allocated to this project (0-100%)");
+
+        isActiveCheckbox = new Checkbox("Active Assignment");
+        isActiveCheckbox.setHelperText("Whether this assignment is currently active");
+
+        formLayout.add(projectComboBox, rolesField, permissionsField, 
+                      allocatedHoursField, hourlyRateField, workloadPercentageField,
+                      startDatePicker, dueDatePicker, isActiveCheckbox);
 
         if (!isNew) {
 
@@ -125,6 +168,32 @@ public class CUserProjectSettingsDialog extends CDBEditDialog<CUserProjectSettin
             if (data.getPermission() != null) {
                 permissionsField.setValue(data.getPermission());
             }
+
+            // Populate resource allocation fields
+            if (data.getAllocatedHours() != null) {
+                allocatedHoursField.setValue(data.getAllocatedHours());
+            }
+
+            if (data.getHourlyRate() != null) {
+                hourlyRateField.setValue(data.getHourlyRate());
+            }
+
+            if (data.getStartDate() != null) {
+                startDatePicker.setValue(data.getStartDate());
+            }
+
+            if (data.getDueDate() != null) {
+                dueDatePicker.setValue(data.getDueDate());
+            }
+
+            if (data.getWorkloadPercentage() != null) {
+                workloadPercentageField.setValue(data.getWorkloadPercentage());
+            }
+
+            isActiveCheckbox.setValue(data.getIsActive() != null ? data.getIsActive() : Boolean.TRUE);
+        } else {
+            // Set defaults for new assignments
+            isActiveCheckbox.setValue(Boolean.TRUE);
         }
     }
 
@@ -144,5 +213,47 @@ public class CUserProjectSettingsDialog extends CDBEditDialog<CUserProjectSettin
         }
         data.setRole(rolesField.getValue());
         data.setPermission(permissionsField.getValue());
+
+        // Set resource allocation fields
+        data.setAllocatedHours(allocatedHoursField.getValue());
+        data.setHourlyRate(hourlyRateField.getValue());
+        data.setStartDate(startDatePicker.getValue());
+        data.setDueDate(dueDatePicker.getValue());
+        data.setWorkloadPercentage(workloadPercentageField.getValue());
+        data.setIsActive(isActiveCheckbox.getValue());
+
+        // Validate business rules
+        validateResourceAllocation();
+    }
+
+    /**
+     * Validates resource allocation business rules.
+     * @throws IllegalArgumentException if validation fails
+     */
+    private void validateResourceAllocation() {
+        // Validate date range
+        if (startDatePicker.getValue() != null && dueDatePicker.getValue() != null) {
+            if (startDatePicker.getValue().isAfter(dueDatePicker.getValue())) {
+                throw new IllegalArgumentException("Start date cannot be after due date");
+            }
+        }
+
+        // Validate workload percentage
+        if (workloadPercentageField.getValue() != null) {
+            BigDecimal workload = workloadPercentageField.getValue();
+            if (workload.compareTo(BigDecimal.ZERO) < 0 || workload.compareTo(new BigDecimal("100")) > 0) {
+                throw new IllegalArgumentException("Workload percentage must be between 0 and 100");
+            }
+        }
+
+        // Validate allocated hours
+        if (allocatedHoursField.getValue() != null && allocatedHoursField.getValue().compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException("Allocated hours cannot be negative");
+        }
+
+        // Validate hourly rate
+        if (hourlyRateField.getValue() != null && hourlyRateField.getValue().compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException("Hourly rate cannot be negative");
+        }
     }
 }

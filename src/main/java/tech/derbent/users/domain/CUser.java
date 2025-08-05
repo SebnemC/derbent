@@ -1,5 +1,6 @@
 package tech.derbent.users.domain;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.persistence.AttributeOverride;
@@ -123,7 +124,7 @@ public class CUser extends CEntityNamed<CUser> {
 	private byte[] profilePictureData;
 
 	@OneToMany (mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-	private List<CUserProjectSettings> projectSettings;
+	private List<CUserProjectSettings> projectSettings = new ArrayList<>();
 
 	@ManyToOne (fetch = FetchType.EAGER)
 	@JoinColumn (name = "cusertype_id", nullable = true)

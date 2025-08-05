@@ -12,7 +12,7 @@ import tech.derbent.users.domain.CUser;
 public interface CUserRepository extends CAbstractNamedRepository<CUser> {
 
 	@Query (
-		"SELECT COUNT(DISTINCT u) FROM CUser u JOIN u.projectSettings ps WHERE ps.projectId = :projectId"
+		"SELECT COUNT(DISTINCT u) FROM CUser u JOIN u.projectSettings ps WHERE ps.project.id = :projectId"
 	)
 	long countUsersByProjectId(@Param ("projectId") Long projectId);
 	
