@@ -130,7 +130,7 @@ public final class CEntityFormBuilder<EntityClass> implements ApplicationContext
 			Check.notNull(field, "Field '" + fieldName + "' not found in entity class "
 				+ entityClass.getSimpleName());
 			final Component component =
-				processMetaForField(binder, formLayout, mapHorizontalLayouts, field);
+				processField(binder, formLayout, mapHorizontalLayouts, field);
 
 			if (component != null && mapComponents != null) {
 				mapComponents.put(fieldName, component);
@@ -331,42 +331,7 @@ public final class CEntityFormBuilder<EntityClass> implements ApplicationContext
 		return checkbox;
 	}
 
-	private static Checkbox createCheckbox(final Field field, final MetaData meta,
-		final CEnhancedBinder<?> binder) {
 
-		if ((field == null) || (meta == null) || (binder == null)) {
-			LOGGER.error(
-				"Null parameters in createCheckbox - field: {}, meta: {}, binder: {}",
-				field != null ? field.getName() : "null",
-				meta != null ? "present" : "null", binder != null ? "present" : "null");
-			return null;
-		}
-		final Checkbox checkbox = new Checkbox();
-		// Set ID for better test automation
-		CAuxillaries.setId(checkbox);
-
-		// Safe null checking and parsing for default value
-		if ((meta.defaultValue() != null) && !meta.defaultValue().trim().isEmpty()) {
-
-			try {
-				checkbox.setValue(Boolean.parseBoolean(meta.defaultValue()));
-				// LOGGER.debug("Set default value for checkbox '{}': {}",
-				// field.getName(), meta.defaultValue());
-			} catch (final Exception e) {
-				LOGGER.warn("Invalid boolean default value '{}' for field '{}': {}",
-					meta.defaultValue(), field.getName(), e.getMessage());
-			}
-		}
-
-		try {
-			safeBindComponentWithField(binder, checkbox, field.getName(), "Checkbox");
-		} catch (final Exception e) {
-			LOGGER.error("Failed to bind checkbox for field '{}': {}", field.getName(),
-				e.getMessage());
-			return null;
-		}
-		return checkbox;
-	}
 
 	@SuppressWarnings ("unchecked")
 	public static <T extends CEntityDB<T>> ComboBox<T> createComboBox(final EntityFieldInfo fieldInfo,
@@ -660,77 +625,6 @@ public final class CEntityFormBuilder<EntityClass> implements ApplicationContext
 		return component;
 	}
 
-	private static Component createComponentForField(final Field field,
-		final MetaData meta, final CEnhancedBinder<?> binder)
-		throws NoSuchMethodException, SecurityException, IllegalAccessException,
-		InvocationTargetException {
-		Component component = null;
-		Check.notNull(field, "Field");
-		Check.notNull(meta, "MetaData " + field.getName());
-		Check.notNull(binder, "Binder for field " + field.getName());
-		final Class<?> fieldType = field.getType();
-		Check.notNull(fieldType, "Field type for field " + field.getName());
-		// Check if field should be rendered as ComboBox based on metadata
-		final boolean hasDataProvider = (meta.dataProviderBean() != null)
-			&& !meta.dataProviderBean().trim().isEmpty();
-
-		if (hasDataProvider && (fieldType == String.class)) {
-			// String field with data provider should be rendered as String ComboBox
-			component = createStringComboBox(field, meta, binder);
-		}
-		else if (hasDataProvider || CEntityDB.class.isAssignableFrom(fieldType)) {
-			// Entity field or non-String field with data provider should be rendered as
-			// entity ComboBox
-			component = createComboBox(field, meta, binder);
-		}
-		else if ((fieldType == Boolean.class) || (fieldType == boolean.class)) {
-			component = createCheckbox(field, meta, binder);
-		}
-		else if ((fieldType == String.class)
-			&& (meta.maxLength() >= CEntityConstants.MAX_LENGTH_DESCRIPTION)) {
-			component = createTextArea(field, meta, binder);
-		}
-		else if ((fieldType == String.class)
-			&& (meta.maxLength() < CEntityConstants.MAX_LENGTH_DESCRIPTION)) {
-			component = createTextField(field, meta, binder);
-		}
-		else if ((fieldType == Integer.class) || (fieldType == int.class)
-			|| (fieldType == Long.class) || (fieldType == long.class)) {
-			// Integer types
-			component = createIntegerField(field, meta, binder);
-		}
-		else if (fieldType == BigDecimal.class) {
-			component = createBigDecimalField(field, meta, binder);
-		}
-		else if ((fieldType == Double.class) || (fieldType == double.class)
-			|| (fieldType == Float.class) || (fieldType == float.class)) {
-			// Floating-point types
-			component = createFloatingPointField(field, meta, binder);
-		}
-		else if (fieldType == LocalDate.class) {
-			component = createDatePicker(field, meta, binder);
-		}
-		else if ((fieldType == LocalDateTime.class) || (fieldType == Instant.class)) {
-			component = createDateTimePicker(field, meta, binder);
-		}
-		else if (fieldType.isEnum()) {
-			component = createEnumComponent(field, meta, binder);
-		}
-		else {
-			Check.condition(false, "Unsupported field type: " + fieldType.getSimpleName()
-				+ " for field: " + field.getName());
-		}
-		Check.notNull(component, "Component for field " + field.getName() + " of type "
-			+ fieldType.getSimpleName());
-		setRequiredIndicatorVisible(meta, component);
-		// dont use helper text for Checkbox components setHelperText(meta, component);
-		setComponentWidth(component, meta);
-		// setclass name for styling in format of form-field{ComponentType}
-		component.setClassName("form-field-" + component.getClass().getSimpleName());
-		// Create field
-		return component;
-	}
-
 	private static DatePicker createDatePicker(final EntityFieldInfo fieldInfo,
 		final CEnhancedBinder<?> binder) {
 		final DatePicker datePicker = new DatePicker();
@@ -739,28 +633,11 @@ public final class CEntityFormBuilder<EntityClass> implements ApplicationContext
 		return datePicker;
 	}
 
-	private static DatePicker createDatePicker(final Field field, final MetaData meta,
-		final CEnhancedBinder<?> binder) {
-		final DatePicker datePicker = new DatePicker();
-		CAuxillaries.setId(datePicker);
-		safeBindComponentWithField(binder, datePicker, field.getName(), "DatePicker");
-		return datePicker;
-	}
-
 	private static DateTimePicker createDateTimePicker(final EntityFieldInfo fieldInfo,
 		final CEnhancedBinder<?> binder) {
 		final DateTimePicker dateTimePicker = new DateTimePicker();
 		CAuxillaries.setId(dateTimePicker);
 		safeBindComponentWithField(binder, dateTimePicker, fieldInfo.getFieldName(),
-			"DateTimePicker");
-		return dateTimePicker;
-	}
-
-	private static DateTimePicker createDateTimePicker(final Field field,
-		final MetaData meta, final CEnhancedBinder<?> binder) {
-		final DateTimePicker dateTimePicker = new DateTimePicker();
-		CAuxillaries.setId(dateTimePicker);
-		safeBindComponentWithField(binder, dateTimePicker, field.getName(),
 			"DateTimePicker");
 		return dateTimePicker;
 	}
@@ -813,33 +690,7 @@ public final class CEntityFormBuilder<EntityClass> implements ApplicationContext
 	@SuppressWarnings ({
 		"unchecked", "rawtypes" }
 	)
-	private static Component createEnumComponent(final Field field, final MetaData meta,
-		final CEnhancedBinder<?> binder) {
-		final Class<? extends Enum> enumType = (Class<? extends Enum>) field.getType();
-		final Enum[] enumConstants = enumType.getEnumConstants();
 
-		if (meta.useRadioButtons()) {
-			final RadioButtonGroup<Enum> radioGroup = new RadioButtonGroup<>();
-			radioGroup.setItems(enumConstants);
-			radioGroup.setItemLabelGenerator(Enum::name);
-			safeBindComponentWithField(binder, radioGroup, field.getName(),
-				"RadioButtonGroup");
-			return radioGroup;
-		}
-		else {
-			final ComboBox<Enum> comboBox = new ComboBox<>();
-			// Set ID for better test automation
-			CAuxillaries.setId(comboBox);
-			// Following coding guidelines: All selective ComboBoxes must be selection
-			// only (user must not be able to type arbitrary text)
-			comboBox.setAllowCustomValue(false);
-			comboBox.setItems(enumConstants);
-			comboBox.setItemLabelGenerator(Enum::name);
-			safeBindComponentWithField(binder, comboBox, field.getName(),
-				"ComboBox(Enum)");
-			return comboBox;
-		}
-	}
 
 	private static CHorizontalLayout createFieldLayout(final EntityFieldInfo fieldInfo,
 		final Component component) {
@@ -854,11 +705,6 @@ public final class CEntityFormBuilder<EntityClass> implements ApplicationContext
 		}
 		horizontalLayout.add(labelDiv, component);
 		return horizontalLayout;
-	}
-
-	private static CHorizontalLayout createFieldLayout(final MetaData meta,
-		final Component component) {
-		return createFieldLayout(CEntityFieldService.createFieldInfo(meta), component);
 	}
 
 	private static NumberField createFloatingPointField(final EntityFieldInfo fieldInfo,
@@ -941,53 +787,6 @@ public final class CEntityFormBuilder<EntityClass> implements ApplicationContext
 		else {
 			// Fallback for other number types (Double, etc.)
 			binder.bind(numberField, fieldInfo.getFieldName());
-		}
-		return numberField;
-	}
-
-	private static NumberField createIntegerField(final Field field, final MetaData meta,
-		final CEnhancedBinder<?> binder) {
-		Check.notNull(field, "Field for integer field creation");
-		Check.notNull(meta, "MetaData for integer field creation");
-		Check.notNull(binder, "Binder for integer field creation");
-		final NumberField numberField = new NumberField();
-		// Set ID for better test automation
-		CAuxillaries.setId(numberField);
-		// Set step for integer fields
-		numberField.setStep(1);
-
-		// Set default value if specified
-		if ((meta.defaultValue() != null) && !meta.defaultValue().trim().isEmpty()) {
-			final double defaultVal = Double.parseDouble(meta.defaultValue());
-			numberField.setValue(defaultVal);
-		}
-		// Handle different integer types with proper conversion
-		final Class<?> fieldType = field.getType();
-		final String propertyName = getPropertyName(field);
-
-		if ((fieldType == Integer.class) || (fieldType == int.class)) {
-			binder.forField(numberField)
-				.withConverter(value -> value != null ? value.intValue() : null,
-					value -> value != null ? value.doubleValue() : null,
-					"Invalid integer value")
-				.bind(propertyName);
-			LOGGER.debug(
-				"Successfully bound NumberField with Integer converter for field '{}'",
-				field.getName());
-		}
-		else if ((fieldType == Long.class) || (fieldType == long.class)) {
-			binder.forField(numberField)
-				.withConverter(value -> value != null ? value.longValue() : null,
-					value -> value != null ? value.doubleValue() : null,
-					"Invalid long value")
-				.bind(propertyName);
-			LOGGER.debug(
-				"Successfully bound NumberField with Long converter for field '{}'",
-				field.getName());
-		}
-		else {
-			// Fallback for other number types (Double, etc.)
-			binder.bind(numberField, propertyName);
 		}
 		return numberField;
 	}
@@ -1130,38 +929,6 @@ public final class CEntityFormBuilder<EntityClass> implements ApplicationContext
 		return item;
 	}
 
-	private static TextArea createTextArea(final Field field, final MetaData meta,
-		final CEnhancedBinder<?> binder) {
-		Check.notNull(field, "Field for text area creation");
-		Check.notNull(meta, "MetaData for text area creation");
-		Check.notNull(binder, "Binder for text area creation");
-		final TextArea item = new TextArea();
-
-		if (meta.maxLength() > 0) {
-			item.setMaxLength(meta.maxLength());
-		}
-		item.setWidthFull();
-		item.setMinHeight("100px");
-
-		if ((meta.defaultValue() != null) && !meta.defaultValue().trim().isEmpty()) {
-
-			try {
-				item.setValue(meta.defaultValue());
-			} catch (final Exception e) {
-				LOGGER.error("Failed to set default value '{}' for text area '{}': {}",
-					meta.defaultValue(), field.getName(), e.getMessage());
-			}
-		}
-
-		try {
-			safeBindComponentWithField(binder, item, field.getName(), "TextArea");
-		} catch (final Exception e) {
-			LOGGER.error("Failed to bind text area for field '{}': {}", field.getName(),
-				e.getMessage());
-			return null;
-		}
-		return item;
-	}
 
 	private static TextField createTextField(final EntityFieldInfo fieldInfo,
 		final CEnhancedBinder<?> binder) {
@@ -1197,41 +964,6 @@ public final class CEntityFormBuilder<EntityClass> implements ApplicationContext
 		return item;
 	}
 
-	private static TextField createTextField(final Field field, final MetaData meta,
-		final CEnhancedBinder<?> binder) {
-		Check.notNull(field, "Field for text field creation");
-		Check.notNull(meta, "MetaData for text field creation");
-		Check.notNull(binder, "Binder for text field creation");
-		final TextField item = new TextField();
-		// Set ID for better test automation
-		CAuxillaries.setId(item);
-		item.setClassName("plain-look-textfield");
-
-		if (meta.maxLength() > 0) {
-			item.setMaxLength(meta.maxLength());
-		}
-		item.setWidthFull();
-
-		if ((meta.defaultValue() != null) && !meta.defaultValue().trim().isEmpty()) {
-
-			try {
-				item.setValue(meta.defaultValue());
-			} catch (final Exception e) {
-				LOGGER.error("Failed to set default value '{}' for text area '{}': {}",
-					meta.defaultValue(), field.getName(), e.getMessage());
-			}
-		}
-
-		try {
-			safeBindComponentWithField(binder, item, field.getName(), "TextField");
-		} catch (final Exception e) {
-			LOGGER.error("Failed to bind text field for field '{}': {}", field.getName(),
-				e.getMessage());
-			return null;
-		}
-		return item;
-	}
-
 	/**
 	 * Gets the property name for binding from a field.
 	 * @param field the field to get property name for
@@ -1261,27 +993,14 @@ public final class CEntityFormBuilder<EntityClass> implements ApplicationContext
 	}
 
 	private static List<Field> getSortedFilteredFieldsList(final List<Field> allFields) {
-		return allFields.stream().filter(field -> {
-			Check.notNull(field, "Field in sorted filtered fields list");
-			return !Modifier.isStatic(field.getModifiers());
-		}).filter(field -> {
-			final MetaData metaData = field.getAnnotation(MetaData.class);
-
-			if (metaData == null) {
-				return false;
-			}
-			return true;
-		}).filter(field -> {
-			final MetaData metaData = field.getAnnotation(MetaData.class);
-
-			if (metaData.hidden()) {
-				return false;
-			}
-			return true;
-		}).sorted(Comparator.comparingInt(field -> {
-			final MetaData metaData = field.getAnnotation(MetaData.class);
-			return metaData != null ? metaData.order() : Integer.MAX_VALUE;
-		})).collect(Collectors.toList());
+		// Use CSpringAuxillaries.getMetaDataFields which already implements proper filtering and sorting
+		// This reduces code duplication and ensures consistent behavior
+		if (allFields.isEmpty()) {
+			return allFields;
+		}
+		// Get the entity class from the first field to use with CSpringAuxillaries
+		final Class<?> entityClass = allFields.get(0).getDeclaringClass();
+		return CSpringAuxillaries.getMetaDataFields(entityClass);
 	}
 
 	private static <EntityClass> Component processField(
@@ -1299,28 +1018,6 @@ public final class CEntityFormBuilder<EntityClass> implements ApplicationContext
 			createFieldLayout(fieldInfo, component);
 		Check.notNull(horizontalLayout, "HorizontalLayout for field " + field.getName()
 			+ " with displayName " + fieldInfo.getDisplayName());
-		formLayout.add(horizontalLayout);
-
-		if (mapHorizontalLayouts != null) {
-			mapHorizontalLayouts.put(field.getName(), horizontalLayout);
-		}
-		return component;
-	}
-
-	private static <EntityClass> Component processMetaForField(
-		final CEnhancedBinder<EntityClass> binder, final VerticalLayout formLayout,
-		final Map<String, CHorizontalLayout> mapHorizontalLayouts, final Field field)
-		throws NoSuchMethodException, SecurityException, IllegalAccessException,
-		InvocationTargetException {
-		Check.notNull(field, "field");
-		final MetaData meta = field.getAnnotation(MetaData.class);
-		Check.notNull(meta, "MetaData for field " + field.getName());
-		final Component component = createComponentForField(field, meta, binder);
-		Check.notNull(component, "Component for field " + field.getName()
-			+ " with displayName " + meta.displayName());
-		final CHorizontalLayout horizontalLayout = createFieldLayout(meta, component);
-		Check.notNull(horizontalLayout, "HorizontalLayout for field " + field.getName()
-			+ " with displayName " + meta.displayName());
 		formLayout.add(horizontalLayout);
 
 		if (mapHorizontalLayouts != null) {
