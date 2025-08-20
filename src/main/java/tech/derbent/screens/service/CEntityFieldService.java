@@ -180,7 +180,7 @@ public class CEntityFieldService extends CFieldServiceBase {
 			info.setFieldName(field.getName());
 			info.setFieldType(getSimpleTypeName(field.getType()));
 			info.setJavaType(field.getType().getSimpleName());
-			info.fieldType = field.getType();
+			info.setFieldTypeClass(field.getType());
 			return info;
 		} catch (final Exception e) {
 			return null;

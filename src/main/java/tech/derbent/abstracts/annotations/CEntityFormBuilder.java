@@ -296,6 +296,41 @@ public final class CEntityFormBuilder<EntityClass> implements ApplicationContext
 		return numberField;
 	}
 
+	private static Checkbox createCheckbox(final EntityFieldInfo fieldInfo,
+		final CEnhancedBinder<?> binder) {
+
+		if ((fieldInfo == null) || (binder == null)) {
+			LOGGER.error(
+				"Null parameters in createCheckbox - fieldInfo: {}, binder: {}",
+				fieldInfo != null ? fieldInfo.getFieldName() : "null",
+				binder != null ? "present" : "null");
+			return null;
+		}
+		final Checkbox checkbox = new Checkbox();
+		// Set ID for better test automation
+		CAuxillaries.setId(checkbox);
+
+		// Safe null checking and parsing for default value
+		if ((fieldInfo.getDefaultValue() != null) && !fieldInfo.getDefaultValue().trim().isEmpty()) {
+
+			try {
+				checkbox.setValue(Boolean.parseBoolean(fieldInfo.getDefaultValue()));
+			} catch (final Exception e) {
+				LOGGER.warn("Invalid boolean default value '{}' for field '{}': {}",
+					fieldInfo.getDefaultValue(), fieldInfo.getFieldName(), e.getMessage());
+			}
+		}
+
+		try {
+			safeBindComponentWithField(binder, checkbox, fieldInfo.getFieldName(), "Checkbox");
+		} catch (final Exception e) {
+			LOGGER.error("Failed to bind checkbox for field '{}': {}", fieldInfo.getFieldName(),
+				e.getMessage());
+			return null;
+		}
+		return checkbox;
+	}
+
 	private static Checkbox createCheckbox(final Field field, final MetaData meta,
 		final CEnhancedBinder<?> binder) {
 
@@ -331,6 +366,161 @@ public final class CEntityFormBuilder<EntityClass> implements ApplicationContext
 			return null;
 		}
 		return checkbox;
+	}
+
+	@SuppressWarnings ("unchecked")
+	public static <T extends CEntityDB<T>> ComboBox<T> createComboBox(final EntityFieldInfo fieldInfo,
+		final CEnhancedBinder<?> binder) {
+		Check.notNull(fieldInfo, "FieldInfo for ComboBox creation");
+		Check.notNull(binder, "Binder for ComboBox creation");
+		final Class<T> fieldType = (Class<T>) fieldInfo.getFieldTypeClass();
+		// All ComboBoxes are now color-aware by default
+		LOGGER.debug("Creating CColorAwareComboBox for field: {}", fieldInfo.getFieldName());
+		// Create a MetaData object from fieldInfo for backward compatibility with CColorAwareComboBox
+		final MetaData metaData = createMetaDataFromFieldInfo(fieldInfo);
+		final ComboBox<T> comboBox = new CColorAwareComboBox<>(fieldType, metaData);
+		// Enhanced item label generator with null safety and proper display formatting
+		// Fix for combobox display issue: use getName() for CEntityNamed entities instead
+		// of toString()
+		comboBox
+			.setItemLabelGenerator(item -> CColorUtils.getDisplayTextFromEntity(item));
+		// Data provider resolution using CDataProviderResolver
+		List<T> items = null;
+		Check.notNull(dataProviderResolver,
+			"DataProviderResolver for field " + fieldInfo.getFieldName());
+		items = dataProviderResolver.resolveData(fieldType, metaData);
+		LOGGER.debug("Resolved {} items for field '{}' of type {}", items.size(),
+			fieldInfo.getFieldName(), fieldType.getSimpleName());
+		Check.notNull(items, "Items for field " + fieldInfo.getFieldName() + " of type "
+			+ fieldType.getSimpleName());
+
+		// Handle clearOnEmptyData configuration
+		if (fieldInfo.isClearOnEmptyData() && items.isEmpty()) {
+			comboBox.setValue(null);
+			LOGGER.debug("Cleared ComboBox value for field '{}' due to empty data",
+				fieldInfo.getFieldName());
+		}
+		comboBox.setItems(items);
+		// Enhanced default value handling with autoSelectFirst support
+		final boolean hasDefaultValue =
+			(fieldInfo.getDefaultValue() != null) && !fieldInfo.getDefaultValue().trim().isEmpty();
+
+		if (!items.isEmpty()) {
+
+			if (hasDefaultValue) {
+				// For entity types, try to find by name or toString match
+				final T defaultItem = items.stream().filter(item -> {
+					final String itemDisplay = CColorUtils.getDisplayTextFromEntity(item);
+					return fieldInfo.getDefaultValue().equals(itemDisplay);
+				}).findFirst().orElse(null);
+
+				if (defaultItem != null) {
+					comboBox.setValue(defaultItem);
+					LOGGER.debug("Set ComboBox default value for field '{}': {}",
+						fieldInfo.getFieldName(), defaultItem);
+				}
+				else {
+					LOGGER.warn("Default value '{}' not found in items for field '{}'",
+						fieldInfo.getDefaultValue(), fieldInfo.getFieldName());
+				}
+			}
+			else if (fieldInfo.isAutoSelectFirst()) {
+				// Auto-select first item if configured
+				comboBox.setValue(items.get(0));
+				LOGGER.debug("Auto-selected first item for field '{}': {}",
+					fieldInfo.getFieldName(), items.get(0));
+			}
+		}
+		// Use simple binding for ComboBox to avoid incomplete forField bindings The
+		// complex converter logic was causing incomplete bindings
+		safeBindComponentWithField(binder, comboBox, fieldInfo.getFieldName(), "ComboBox");
+		return comboBox;
+	}
+
+	/**
+	 * Creates a MetaData object from EntityFieldInfo for backward compatibility
+	 */
+	private static MetaData createMetaDataFromFieldInfo(final EntityFieldInfo fieldInfo) {
+		// This is a temporary solution to create MetaData from EntityFieldInfo
+		// In the future, CColorAwareComboBox should be refactored to use EntityFieldInfo directly
+		return new MetaData() {
+			@Override
+			public Class<? extends java.lang.annotation.Annotation> annotationType() {
+				return MetaData.class;
+			}
+
+			@Override
+			public String displayName() { return fieldInfo.getDisplayName(); }
+
+			@Override
+			public String description() { return fieldInfo.getDescription(); }
+
+			@Override
+			public boolean required() { return fieldInfo.isRequired(); }
+
+			@Override
+			public boolean readOnly() { return fieldInfo.isReadOnly(); }
+
+			@Override
+			public boolean hidden() { return fieldInfo.isHidden(); }
+
+			@Override
+			public int order() { return fieldInfo.getOrder(); }
+
+			@Override
+			public int maxLength() { return fieldInfo.getMaxLength(); }
+
+			@Override
+			public String defaultValue() { return fieldInfo.getDefaultValue(); }
+
+			@Override
+			public String dataProviderBean() { return fieldInfo.getDataProviderBean(); }
+
+			@Override
+			public boolean autoSelectFirst() { return fieldInfo.isAutoSelectFirst(); }
+
+			@Override
+			public String placeholder() { return fieldInfo.getPlaceholder(); }
+
+			@Override
+			public boolean allowCustomValue() { return fieldInfo.isAllowCustomValue(); }
+
+			@Override
+			public boolean useRadioButtons() { return fieldInfo.isUseRadioButtons(); }
+
+			@Override
+			public boolean comboboxReadOnly() { return fieldInfo.isComboboxReadOnly(); }
+
+			@Override
+			public boolean clearOnEmptyData() { return fieldInfo.isClearOnEmptyData(); }
+
+			@Override
+			public String width() { return fieldInfo.getWidth(); }
+
+			@Override
+			public String dataProviderMethod() { return fieldInfo.getDataProviderMethod(); }
+
+			@Override
+			public String dataProviderParamMethod() { return fieldInfo.getDataProviderParamMethod(); }
+
+			@Override
+			public Class<?> dataProviderClass() { return Object.class; }
+
+			@Override
+			public boolean useIcon() { return false; }
+
+			@Override
+			public boolean setBackgroundFromColor() { return false; }
+
+			@Override
+			public double min() { return Double.MIN_VALUE; }
+
+			@Override
+			public double max() { return Double.MAX_VALUE; }
+
+			@Override
+			public String filterMethod() { return ""; }
+		};
 	}
 
 	@SuppressWarnings ("unchecked")
@@ -541,12 +731,29 @@ public final class CEntityFormBuilder<EntityClass> implements ApplicationContext
 		return component;
 	}
 
+	private static DatePicker createDatePicker(final EntityFieldInfo fieldInfo,
+		final CEnhancedBinder<?> binder) {
+		final DatePicker datePicker = new DatePicker();
+		CAuxillaries.setId(datePicker);
+		safeBindComponentWithField(binder, datePicker, fieldInfo.getFieldName(), "DatePicker");
+		return datePicker;
+	}
+
 	private static DatePicker createDatePicker(final Field field, final MetaData meta,
 		final CEnhancedBinder<?> binder) {
 		final DatePicker datePicker = new DatePicker();
 		CAuxillaries.setId(datePicker);
 		safeBindComponentWithField(binder, datePicker, field.getName(), "DatePicker");
 		return datePicker;
+	}
+
+	private static DateTimePicker createDateTimePicker(final EntityFieldInfo fieldInfo,
+		final CEnhancedBinder<?> binder) {
+		final DateTimePicker dateTimePicker = new DateTimePicker();
+		CAuxillaries.setId(dateTimePicker);
+		safeBindComponentWithField(binder, dateTimePicker, fieldInfo.getFieldName(),
+			"DateTimePicker");
+		return dateTimePicker;
 	}
 
 	private static DateTimePicker createDateTimePicker(final Field field,
@@ -570,6 +777,37 @@ public final class CEntityFormBuilder<EntityClass> implements ApplicationContext
 		createEnhancedBinder(final Class<?> entityClass) {
 		Check.notNull(entityClass, "Entity class for enhanced binder");
 		return CBinderFactory.createEnhancedBinder((Class<EntityClass>) entityClass);
+	}
+
+	@SuppressWarnings ({
+		"unchecked", "rawtypes" }
+	)
+	private static Component createEnumComponent(final EntityFieldInfo fieldInfo,
+		final CEnhancedBinder<?> binder) {
+		final Class<? extends Enum> enumType = (Class<? extends Enum>) fieldInfo.getFieldTypeClass();
+		final Enum[] enumConstants = enumType.getEnumConstants();
+
+		if (fieldInfo.isUseRadioButtons()) {
+			final RadioButtonGroup<Enum> radioGroup = new RadioButtonGroup<>();
+			radioGroup.setItems(enumConstants);
+			radioGroup.setItemLabelGenerator(Enum::name);
+			safeBindComponentWithField(binder, radioGroup, fieldInfo.getFieldName(),
+				"RadioButtonGroup");
+			return radioGroup;
+		}
+		else {
+			final ComboBox<Enum> comboBox = new ComboBox<>();
+			// Set ID for better test automation
+			CAuxillaries.setId(comboBox);
+			// Following coding guidelines: All selective ComboBoxes must be selection
+			// only (user must not be able to type arbitrary text)
+			comboBox.setAllowCustomValue(false);
+			comboBox.setItems(enumConstants);
+			comboBox.setItemLabelGenerator(Enum::name);
+			safeBindComponentWithField(binder, comboBox, fieldInfo.getFieldName(),
+				"ComboBox(Enum)");
+			return comboBox;
+		}
 	}
 
 	@SuppressWarnings ({
@@ -623,6 +861,25 @@ public final class CEntityFormBuilder<EntityClass> implements ApplicationContext
 		return createFieldLayout(CEntityFieldService.createFieldInfo(meta), component);
 	}
 
+	private static NumberField createFloatingPointField(final EntityFieldInfo fieldInfo,
+		final CEnhancedBinder<?> binder) {
+		Check.notNull(fieldInfo, "FieldInfo for floating point field creation");
+		Check.notNull(binder, "Binder for floating point field creation");
+		final NumberField numberField = new NumberField();
+		// Set ID for better test automation
+		CAuxillaries.setId(numberField);
+		// Set step for floating point fields
+		numberField.setStep(0.01);
+
+		// Set default value if specified
+		if ((fieldInfo.getDefaultValue() != null) && !fieldInfo.getDefaultValue().trim().isEmpty()) {
+			final double defaultVal = Double.parseDouble(fieldInfo.getDefaultValue());
+			numberField.setValue(defaultVal);
+		}
+		safeBindComponent(binder, numberField, fieldInfo.getFieldName(), "NumberField");
+		return numberField;
+	}
+
 	private static NumberField createFloatingPointField(final Field field,
 		final MetaData meta, final CEnhancedBinder<?> binder) {
 		Check.notNull(field, "Field for floating point field creation");
@@ -640,6 +897,51 @@ public final class CEntityFormBuilder<EntityClass> implements ApplicationContext
 			numberField.setValue(defaultVal);
 		}
 		safeBindComponent(binder, numberField, field.getName(), "NumberField");
+		return numberField;
+	}
+
+	private static NumberField createIntegerField(final EntityFieldInfo fieldInfo,
+		final CEnhancedBinder<?> binder) {
+		Check.notNull(fieldInfo, "FieldInfo for integer field creation");
+		Check.notNull(binder, "Binder for integer field creation");
+		final NumberField numberField = new NumberField();
+		// Set ID for better test automation
+		CAuxillaries.setId(numberField);
+		// Set step for integer fields
+		numberField.setStep(1);
+
+		// Set default value if specified
+		if ((fieldInfo.getDefaultValue() != null) && !fieldInfo.getDefaultValue().trim().isEmpty()) {
+			final double defaultVal = Double.parseDouble(fieldInfo.getDefaultValue());
+			numberField.setValue(defaultVal);
+		}
+		// Handle different integer types with proper conversion
+		final Class<?> fieldType = fieldInfo.getFieldTypeClass();
+
+		if ((fieldType == Integer.class) || (fieldType == int.class)) {
+			binder.forField(numberField)
+				.withConverter(value -> value != null ? value.intValue() : null,
+					value -> value != null ? value.doubleValue() : null,
+					"Invalid integer value")
+				.bind(fieldInfo.getFieldName());
+			LOGGER.debug(
+				"Successfully bound NumberField with Integer converter for field '{}'",
+				fieldInfo.getFieldName());
+		}
+		else if ((fieldType == Long.class) || (fieldType == long.class)) {
+			binder.forField(numberField)
+				.withConverter(value -> value != null ? value.longValue() : null,
+					value -> value != null ? value.doubleValue() : null,
+					"Invalid long value")
+				.bind(fieldInfo.getFieldName());
+			LOGGER.debug(
+				"Successfully bound NumberField with Long converter for field '{}'",
+				fieldInfo.getFieldName());
+		}
+		else {
+			// Fallback for other number types (Double, etc.)
+			binder.bind(numberField, fieldInfo.getFieldName());
+		}
 		return numberField;
 	}
 
@@ -693,52 +995,52 @@ public final class CEntityFormBuilder<EntityClass> implements ApplicationContext
 	private static ComboBox<String> createStringComboBox(final EntityFieldInfo fieldInfo,
 		final CEnhancedBinder<?> binder) throws NoSuchMethodException, SecurityException,
 		IllegalAccessException, InvocationTargetException {
-		Check.notNull(fieldInfo, "Field for String ComboBox creation");
+		Check.notNull(fieldInfo, "FieldInfo for String ComboBox creation");
 		Check.notNull(binder, "Binder for String ComboBox creation");
 		final ComboBox<String> comboBox = new ComboBox<>();
-		// Configure basic properties from metadata
-		comboBox.setLabel(meta.displayName());
-		comboBox.setPlaceholder(meta.placeholder());
-		comboBox.setAllowCustomValue(meta.allowCustomValue());
-		comboBox.setReadOnly(meta.comboboxReadOnly() || meta.readOnly());
+		// Configure basic properties from fieldInfo
+		comboBox.setLabel(fieldInfo.getDisplayName());
+		comboBox.setPlaceholder(fieldInfo.getPlaceholder());
+		comboBox.setAllowCustomValue(fieldInfo.isAllowCustomValue());
+		comboBox.setReadOnly(fieldInfo.isComboboxReadOnly() || fieldInfo.isReadOnly());
 
 		// Set width if specified
-		if (!meta.width().trim().isEmpty()) {
-			comboBox.setWidth(meta.width());
+		if (!fieldInfo.getWidth().trim().isEmpty()) {
+			comboBox.setWidth(fieldInfo.getWidth());
 		}
 		// Resolve String data using data provider
-		final List<String> items = resolveStringData(meta, field.getName());
+		final List<String> items = resolveStringData(fieldInfo);
 		comboBox.setItems(items);
 
 		// Handle clearOnEmptyData configuration
-		if (meta.clearOnEmptyData() && items.isEmpty()) {
+		if (fieldInfo.isClearOnEmptyData() && items.isEmpty()) {
 			comboBox.setValue(null);
 		}
 		// Handle default value
 		final boolean hasDefaultValue =
-			(meta.defaultValue() != null) && !meta.defaultValue().trim().isEmpty();
+			(fieldInfo.getDefaultValue() != null) && !fieldInfo.getDefaultValue().trim().isEmpty();
 
 		if (hasDefaultValue) {
 
 			// For String ComboBox, try to match default value exactly
-			if (items.contains(meta.defaultValue())) {
-				comboBox.setValue(meta.defaultValue());
+			if (items.contains(fieldInfo.getDefaultValue())) {
+				comboBox.setValue(fieldInfo.getDefaultValue());
 				LOGGER.debug("Set String ComboBox default value for field '{}': '{}'",
-					field.getName(), meta.defaultValue());
+					fieldInfo.getFieldName(), fieldInfo.getDefaultValue());
 			}
 			else {
 				LOGGER.warn("Default value '{}' not found in items for String field '{}'",
-					meta.defaultValue(), field.getName());
+					fieldInfo.getDefaultValue(), fieldInfo.getFieldName());
 			}
 		}
-		else if (meta.autoSelectFirst() && !items.isEmpty()) {
+		else if (fieldInfo.isAutoSelectFirst() && !items.isEmpty()) {
 			// Auto-select first item if configured
 			comboBox.setValue(items.get(0));
 			LOGGER.debug("Auto-selected first string item for field '{}': '{}'",
-				field.getName(), items.get(0));
+				fieldInfo.getFieldName(), items.get(0));
 		}
 		// Bind to field
-		safeBindComponentWithField(binder, comboBox, field.getName(), "String ComboBox");
+		safeBindComponentWithField(binder, comboBox, fieldInfo.getFieldName(), "String ComboBox");
 		return comboBox;
 	}
 
@@ -796,6 +1098,38 @@ public final class CEntityFormBuilder<EntityClass> implements ApplicationContext
 		return comboBox;
 	}
 
+	private static TextArea createTextArea(final EntityFieldInfo fieldInfo,
+		final CEnhancedBinder<?> binder) {
+		Check.notNull(fieldInfo, "FieldInfo for text area creation");
+		Check.notNull(binder, "Binder for text area creation");
+		final TextArea item = new TextArea();
+
+		if (fieldInfo.getMaxLength() > 0) {
+			item.setMaxLength(fieldInfo.getMaxLength());
+		}
+		item.setWidthFull();
+		item.setMinHeight("100px");
+
+		if ((fieldInfo.getDefaultValue() != null) && !fieldInfo.getDefaultValue().trim().isEmpty()) {
+
+			try {
+				item.setValue(fieldInfo.getDefaultValue());
+			} catch (final Exception e) {
+				LOGGER.error("Failed to set default value '{}' for text area '{}': {}",
+					fieldInfo.getDefaultValue(), fieldInfo.getFieldName(), e.getMessage());
+			}
+		}
+
+		try {
+			safeBindComponentWithField(binder, item, fieldInfo.getFieldName(), "TextArea");
+		} catch (final Exception e) {
+			LOGGER.error("Failed to bind text area for field '{}': {}", fieldInfo.getFieldName(),
+				e.getMessage());
+			return null;
+		}
+		return item;
+	}
+
 	private static TextArea createTextArea(final Field field, final MetaData meta,
 		final CEnhancedBinder<?> binder) {
 		Check.notNull(field, "Field for text area creation");
@@ -823,6 +1157,40 @@ public final class CEntityFormBuilder<EntityClass> implements ApplicationContext
 			safeBindComponentWithField(binder, item, field.getName(), "TextArea");
 		} catch (final Exception e) {
 			LOGGER.error("Failed to bind text area for field '{}': {}", field.getName(),
+				e.getMessage());
+			return null;
+		}
+		return item;
+	}
+
+	private static TextField createTextField(final EntityFieldInfo fieldInfo,
+		final CEnhancedBinder<?> binder) {
+		Check.notNull(fieldInfo, "FieldInfo for text field creation");
+		Check.notNull(binder, "Binder for text field creation");
+		final TextField item = new TextField();
+		// Set ID for better test automation
+		CAuxillaries.setId(item);
+		item.setClassName("plain-look-textfield");
+
+		if (fieldInfo.getMaxLength() > 0) {
+			item.setMaxLength(fieldInfo.getMaxLength());
+		}
+		item.setWidthFull();
+
+		if ((fieldInfo.getDefaultValue() != null) && !fieldInfo.getDefaultValue().trim().isEmpty()) {
+
+			try {
+				item.setValue(fieldInfo.getDefaultValue());
+			} catch (final Exception e) {
+				LOGGER.error("Failed to set default value '{}' for text field '{}': {}",
+					fieldInfo.getDefaultValue(), fieldInfo.getFieldName(), e.getMessage());
+			}
+		}
+
+		try {
+			safeBindComponentWithField(binder, item, fieldInfo.getFieldName(), "TextField");
+		} catch (final Exception e) {
+			LOGGER.error("Failed to bind text field for field '{}': {}", fieldInfo.getFieldName(),
 				e.getMessage());
 			return null;
 		}
@@ -862,6 +1230,16 @@ public final class CEntityFormBuilder<EntityClass> implements ApplicationContext
 			return null;
 		}
 		return item;
+	}
+
+	/**
+	 * Gets the property name for binding from a field.
+	 * @param field the field to get property name for
+	 * @return the property name for binding
+	 */
+	private static String getPropertyName(final Field field) {
+		Check.notNull(field, "Field for property name");
+		return field.getName();
 	}
 
 	private static void getListOfAllFields(final Class<?> entityClass,
@@ -1009,6 +1387,70 @@ public final class CEntityFormBuilder<EntityClass> implements ApplicationContext
 	}
 
 	/**
+	 * Resolves String data from EntityFieldInfo configuration. This method attempts to call
+	 * service methods that return List<String>.
+	 * @param fieldInfo the field info containing data provider configuration
+	 * @return list of strings for the ComboBox, never null but may be empty
+	 * @throws SecurityException
+	 * @throws NoSuchMethodException
+	 * @throws InvocationTargetException
+	 * @throws IllegalAccessException
+	 */
+	private static List<String> resolveStringData(final EntityFieldInfo fieldInfo)
+		throws NoSuchMethodException, SecurityException, IllegalAccessException,
+		InvocationTargetException {
+		Check.notNull(fieldInfo, "FieldInfo for String data resolution");
+		Check.notNull(fieldInfo.getFieldName(), "Field name for String data resolution");
+		Check.notNull(applicationContext,
+			"ApplicationContext for String data resolution");
+		// Try to resolve data provider bean
+		final String beanName = fieldInfo.getDataProviderBean();
+		Check.notNull(beanName,
+			"Data provider bean name for String field '" + fieldInfo.getFieldName() + "'");
+		Check.condition(!beanName.trim().isEmpty(),
+			"Data provider bean name for String field '" + fieldInfo.getFieldName()
+				+ "' must not be empty");
+
+		if (beanName.equals("none")) {
+			return List.of(); // No data provider configured, return empty list
+		}
+		Check.condition(applicationContext.containsBean(beanName),
+			"Data provider bean '" + beanName + "' for String field '" + fieldInfo.getFieldName()
+				+ "' must be present in Spring context");
+		final Object serviceBean = applicationContext.getBean(beanName);
+		LOGGER.debug("Retrieved data provider bean '{}' for String field '{}'", beanName,
+			fieldInfo.getFieldName());
+		// Determine method name to call
+		final String methodName = fieldInfo.getDataProviderMethod();
+		Check.notNull(methodName,
+			"Data provider method name for String field '" + fieldInfo.getFieldName() + "'");
+		Check.condition(!methodName.trim().isEmpty(),
+			"Data provider method name for String field '" + fieldInfo.getFieldName()
+				+ "' must not be empty");
+
+		// Try to call the method
+		if (fieldInfo.getDataProviderParamMethod() != null
+			&& fieldInfo.getDataProviderParamMethod().trim().length() > 0) {
+
+			try {
+				// call dataprovider param method, returning Object as result
+				final String methodstr = fieldInfo.getDataProviderParamMethod();
+				final Method method = serviceBean.getClass().getMethod(methodstr);
+				Check.notNull(method, "Method '" + methodName
+					+ "' on service bean for field '" + fieldInfo.getFieldName() + "'");
+				final Object param = method.invoke(serviceBean);
+				return callStringDataMethod(serviceBean, methodName, fieldInfo.getFieldName(), param);
+			} catch (final NoSuchMethodException e) {
+				LOGGER.error(
+					"Data provider method '{}' not found on service bean for field '{}': {}",
+					fieldInfo.getDataProviderParamMethod(), fieldInfo.getFieldName(), e.getMessage());
+				throw e;
+			}
+		}
+		return callStringDataMethod(serviceBean, methodName, fieldInfo.getFieldName());
+	}
+
+	/**
 	 * Resolves String data from data provider configuration. This method attempts to call
 	 * service methods that return List<String>.
 	 * @param meta      the metadata containing data provider configuration
@@ -1114,6 +1556,10 @@ public final class CEntityFormBuilder<EntityClass> implements ApplicationContext
 		safeBindComponent(binder, component, propertyName, componentType);
 	}
 
+	private static void setComponentWidth(final Component component, final MetaData meta) {
+		setComponentWidth(component, meta != null ? meta.width() : null);
+	}
+
 	private static void setComponentWidth(final Component component, final String width) {
 
 		if ((component == null) || (width == null)) {
@@ -1139,6 +1585,14 @@ public final class CEntityFormBuilder<EntityClass> implements ApplicationContext
 				hasSize.setWidthFull();
 			}
 		}
+	}
+
+	private static void setRequiredIndicatorVisible(final EntityFieldInfo fieldInfo,
+		final Component field) {
+		Check.notNull(fieldInfo, "FieldInfo for required indicator visibility");
+		Check.notNull(field, "Field for required indicator visibility");
+		((HasValueAndElement<?, ?>) field).setReadOnly(fieldInfo.isReadOnly());
+		((HasValueAndElement<?, ?>) field).setRequiredIndicatorVisible(fieldInfo.isRequired());
 	}
 
 	private static void setRequiredIndicatorVisible(final MetaData meta,
