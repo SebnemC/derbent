@@ -35,7 +35,7 @@ mvn spotless:apply
 
 # Start the application (NEVER CANCEL: takes 15+ seconds)
 # NOTE: The default configuration uses PostgreSQL. For development without PostgreSQL:
-mvn spring-boot:run -Dspring.profiles.active=h2
+mvn spring-boot:run -Ph2-local-development -Dspring-boot.run.profiles=h2
 # TIMEOUT: Set 5+ minutes. Expected time: 12-15 seconds to start
 # Application will be available at http://localhost:8080
 
@@ -87,7 +87,7 @@ mvn clean compile                     # Full build (NEVER CANCEL: 12-15 seconds)
 #### 2. Application Startup Validation  
 ```bash
 # Start application and verify it loads (use H2 profile for development)
-mvn spring-boot:run -Dspring.profiles.active=h2 &
+mvn spring-boot:run -Ph2-local-development -Dspring-boot.run.profiles=h2 &
 APP_PID=$!
 
 # Wait for startup (12-15 seconds)
@@ -116,7 +116,7 @@ kill $APP_PID
 When making UI or business logic changes, ALWAYS manually test these workflows:
 
 **Login Flow:**
-1. Start application: `mvn spring-boot:run -Dspring.profiles.active=h2`
+1. Start application: `mvn spring-boot:run -Ph2-local-development -Dspring-boot.run.profiles=h2`
 2. Navigate to http://localhost:8080
 3. Verify login page displays
 4. Test login with sample data (users created automatically)
@@ -182,12 +182,15 @@ docs/                   # Comprehensive documentation
 - **ALL domain classes MUST be prefixed with "C"** (e.g., CActivity, CUser, CProject)
 - **Follow MVC pattern**: Model (domain), View (UI), Controller (service)
 - **Always use CAbstractService** as base for service classes
-- **Entity classes extend CEntityDB<T>** for database entities
-- **Views extend appropriate CAbstract*Page** base classes
-- **Use CEnhancedBinder** for form binding instead of vanilla Vaadin Binder
+- **Entity classes extend CEntityDB<T>**
+- **Repository classes extend CAbstractRepository<T>**
+- **View classes extend appropriate CAbstract*Page**
 
 ### Database Configuration
-- **Development**: Use H2 profile: `mvn spring-boot:run -Dspring.profiles.active=h2`
+- **Development**: H2 in-memory database (requires both Maven profile and Spring profile)
+  ```bash
+  mvn spring-boot:run -Ph2-local-development -Dspring-boot.run.profiles=h2
+  ```
 - **Production**: PostgreSQL (requires manual setup and database server)
 - **Schema**: Hibernate auto-creates tables with sample data
 - **Sample Data**: Automatically loaded on startup via CSampleDataInitializer
@@ -212,7 +215,7 @@ docs/                   # Comprehensive documentation
 ### Debugging Issues
 ```bash
 # Check application logs during startup (use H2 profile for development)
-mvn spring-boot:run -Dspring.profiles.active=h2 | grep -E "(ERROR|WARN|DEBUG)"
+mvn spring-boot:run -Ph2-local-development -Dspring-boot.run.profiles=h2 | grep -E "(ERROR|WARN|DEBUG)"
 
 # Validate database connectivity - H2 console available at:
 # http://localhost:8080/h2-console (when using H2 profile)
@@ -275,7 +278,7 @@ mvn test               # Run tests (some failures expected)
 - **Timeout errors**: Increase timeout values, builds take 12-15 seconds (incremental)
 
 ### Application Startup Issues
-- **"Unable to determine Dialect"**: Database configuration issue, use H2 profile: `mvn spring-boot:run -Dspring.profiles.active=h2`
+- **"Unable to determine Dialect"**: Database configuration issue, use H2 profile: `mvn spring-boot:run -Ph2-local-development -Dspring-boot.run.profiles=h2`
 - **Port 8080 in use**: Kill existing process with `pkill -f spring-boot:run`
 - **Database errors**: For development, use H2 profile to avoid PostgreSQL dependency
 - **Vaadin compilation**: Delete `target/` and rebuild with `mvn clean compile`
