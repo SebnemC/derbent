@@ -15,34 +15,12 @@ public class CMeetingGanttGridLine extends CAbstractGanttGridLine {
 		super(ganttItem);
 	}
 
-	/** Create the description cell with meeting-specific information. Shows description along with location if available. */
-	@Override
-	protected void createDescriptionCell() {
-		super.createDescriptionCell();
-		// Add location information if available
-		try {
-			final Object entity = ganttItem.getEntity();
-			final java.lang.reflect.Method locationMethod = entity.getClass().getMethod("getLocation");
-			final String location = (String) locationMethod.invoke(entity);
-			if ((location != null) && !location.isEmpty()) {
-				final Span locationSpan = new Span(" @ " + location);
-				locationSpan.addClassName("gantt-location-text");
-				locationSpan.getStyle().set("font-size", "0.8em");
-				locationSpan.getStyle().set("color", "#666");
-				locationSpan.getStyle().set("font-style", "italic");
-				descriptionCell.add(locationSpan);
-			}
-		} catch (final Exception e) {
-			// Location not available, ignore
-		}
-	}
-
 	/** Create the responsible cell with meeting organizer information. Shows the meeting responsible person. */
 	@Override
 	protected void createResponsibleCell() {
 		responsibleCell = new com.vaadin.flow.component.html.Div();
 		responsibleCell.addClassName("gantt-responsible-cell");
-		responsibleCell.setWidth("150px");
+		responsibleCell.setWidth("140px");
 		// Try to get meeting-specific responsible person first
 		String responsibleName = ganttItem.getResponsibleName();
 		try {
@@ -58,6 +36,28 @@ public class CMeetingGanttGridLine extends CAbstractGanttGridLine {
 		}
 		final Span responsibleSpan = new Span(responsibleName != null ? responsibleName : "No organizer");
 		responsibleCell.add(responsibleSpan);
+	}
+
+	/** Create the due date cell with meeting-specific information. Shows end time along with location if available. */
+	@Override
+	protected void createDueDateCell() {
+		super.createDueDateCell();
+		// Add location information if available
+		try {
+			final Object entity = ganttItem.getEntity();
+			final java.lang.reflect.Method locationMethod = entity.getClass().getMethod("getLocation");
+			final String location = (String) locationMethod.invoke(entity);
+			if ((location != null) && !location.isEmpty()) {
+				final Span locationSpan = new Span(" @ " + location);
+				locationSpan.addClassName("gantt-location-text");
+				locationSpan.getStyle().set("font-size", "0.8em");
+				locationSpan.getStyle().set("color", "#666");
+				locationSpan.getStyle().set("font-style", "italic");
+				dueDateCell.add(locationSpan);
+			}
+		} catch (final Exception e) {
+			// Location not available, ignore
+		}
 	}
 
 	/** Create the timeline bar with meeting-specific styling. Shows meetings as shorter bars since they're typically time-bound events. */

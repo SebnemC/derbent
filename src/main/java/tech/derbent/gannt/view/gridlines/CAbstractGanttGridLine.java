@@ -14,9 +14,11 @@ public abstract class CAbstractGanttGridLine extends Div {
 
 	private static final long serialVersionUID = 1L;
 	protected final CGanttItem ganttItem;
+	protected Div idCell;
 	protected Div nameCell;
 	protected Div responsibleCell;
-	protected Div descriptionCell;
+	protected Div startDateCell;
+	protected Div dueDateCell;
 	protected Div timelineBar;
 
 	/** Constructor for CAbstractGanttGridLine.
@@ -28,26 +30,22 @@ public abstract class CAbstractGanttGridLine extends Div {
 		styleGridLine();
 	}
 
-	/** Create the description cell. Subclasses can override to customize description display. */
-	protected void createDescriptionCell() {
-		descriptionCell = new Div();
-		descriptionCell.addClassName("gantt-description-cell");
-		descriptionCell.setWidth("200px");
-		final String description = ganttItem.getDescription();
-		if ((description != null) && !description.isEmpty()) {
-			final Span descSpan = new Span(description.length() > 50 ? description.substring(0, 47) + "..." : description);
-			descSpan.setTitle(description); // Full description on hover
-			descriptionCell.add(descSpan);
-		} else {
-			descriptionCell.add(new Span("No description"));
-		}
+	/** Create the ID cell. Subclasses can override to customize ID display. */
+	protected void createIdCell() {
+		idCell = new Div();
+		idCell.addClassName("gantt-id-cell");
+		idCell.setWidth("70px");
+		final String entityId = ganttItem.getEntityId() != null ? ganttItem.getEntityId().toString() : "N/A";
+		final Span idSpan = new Span(entityId);
+		idSpan.getStyle().set("text-align", "center");
+		idCell.add(idSpan);
 	}
 
 	/** Create the name cell with icon. Subclasses can override to customize name display. */
 	protected void createNameCell() {
 		nameCell = new Div();
 		nameCell.addClassName("gantt-name-cell");
-		nameCell.setWidth("250px");
+		nameCell.setWidth("200px");
 		final HorizontalLayout nameLayout = new HorizontalLayout();
 		nameLayout.setSpacing(true);
 		nameLayout.setDefaultVerticalComponentAlignment(com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment.CENTER);
@@ -72,9 +70,31 @@ public abstract class CAbstractGanttGridLine extends Div {
 	protected void createResponsibleCell() {
 		responsibleCell = new Div();
 		responsibleCell.addClassName("gantt-responsible-cell");
-		responsibleCell.setWidth("150px");
+		responsibleCell.setWidth("140px");
 		final Span responsibleSpan = new Span(ganttItem.getResponsibleName());
 		responsibleCell.add(responsibleSpan);
+	}
+
+	/** Create the start date cell. Subclasses can override to customize start date display. */
+	protected void createStartDateCell() {
+		startDateCell = new Div();
+		startDateCell.addClassName("gantt-start-date-cell");
+		startDateCell.setWidth("100px");
+		final String startDate = ganttItem.getStartDate() != null ? ganttItem.getStartDate().toString() : "N/A";
+		final Span startDateSpan = new Span(startDate);
+		startDateSpan.getStyle().set("text-align", "center");
+		startDateCell.add(startDateSpan);
+	}
+
+	/** Create the due date cell. Subclasses can override to customize due date display. */
+	protected void createDueDateCell() {
+		dueDateCell = new Div();
+		dueDateCell.addClassName("gantt-due-date-cell");
+		dueDateCell.setWidth("100px");
+		final String endDate = ganttItem.getEndDate() != null ? ganttItem.getEndDate().toString() : "N/A";
+		final Span dueDateSpan = new Span(endDate);
+		dueDateSpan.getStyle().set("text-align", "center");
+		dueDateCell.add(dueDateSpan);
 	}
 
 	/** Create the timeline bar. Subclasses can override to customize timeline display. */
@@ -141,11 +161,13 @@ public abstract class CAbstractGanttGridLine extends Div {
 
 	/** Create all grid cells. */
 	private void createCells() {
+		createIdCell();
 		createNameCell();
 		createResponsibleCell();
-		createDescriptionCell();
+		createStartDateCell();
+		createDueDateCell();
 		createTimelineBar();
-		add(nameCell, responsibleCell, descriptionCell, timelineBar);
+		add(idCell, nameCell, responsibleCell, startDateCell, dueDateCell, timelineBar);
 	}
 
 	/** Create the entity icon component.

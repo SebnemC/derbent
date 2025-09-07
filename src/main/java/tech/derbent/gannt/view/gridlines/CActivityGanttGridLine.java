@@ -15,21 +15,21 @@ public class CActivityGanttGridLine extends CAbstractGanttGridLine {
 		super(ganttItem);
 	}
 
-	/** Create the description cell with activity-specific information. Shows description along with progress percentage if available. */
+	/** Create the start date cell with activity-specific information. Shows start date along with progress percentage if available. */
 	@Override
-	protected void createDescriptionCell() {
-		super.createDescriptionCell();
+	protected void createStartDateCell() {
+		super.createStartDateCell();
 		// Add progress information if available
 		try {
 			final Object entity = ganttItem.getEntity();
 			final java.lang.reflect.Method progressMethod = entity.getClass().getMethod("getProgressPercentage");
 			final Integer progress = (Integer) progressMethod.invoke(entity);
 			if (progress != null) {
-				final Span progressSpan = new Span(" (" + progress + "% complete)");
+				final Span progressSpan = new Span(" (" + progress + "%)");
 				progressSpan.addClassName("gantt-progress-text");
 				progressSpan.getStyle().set("font-size", "0.8em");
 				progressSpan.getStyle().set("color", "#666");
-				descriptionCell.add(progressSpan);
+				startDateCell.add(progressSpan);
 			}
 		} catch (final Exception e) {
 			// Progress not available, ignore

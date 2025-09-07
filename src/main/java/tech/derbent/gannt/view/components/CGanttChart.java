@@ -76,15 +76,21 @@ public class CGanttChart extends VerticalLayout {
 		headerLayout.setSpacing(false);
 		headerLayout.setPadding(false);
 		headerLayout.setDefaultVerticalComponentAlignment(com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment.CENTER);
+		// ID column header
+		final Div idHeader = createHeaderCell("ID", "70px");
+		idHeader.getStyle().set("font-weight", "bold");
 		// Name column header
-		final Div nameHeader = createHeaderCell("Name", "250px");
+		final Div nameHeader = createHeaderCell("Name", "200px");
 		nameHeader.getStyle().set("font-weight", "bold");
 		// Responsible column header
-		final Div responsibleHeader = createHeaderCell("Responsible", "150px");
+		final Div responsibleHeader = createHeaderCell("Responsible", "140px");
 		responsibleHeader.getStyle().set("font-weight", "bold");
-		// Description column header
-		final Div descriptionHeader = createHeaderCell("Description", "200px");
-		descriptionHeader.getStyle().set("font-weight", "bold");
+		// Start Date column header
+		final Div startDateHeader = createHeaderCell("Start Date", "100px");
+		startDateHeader.getStyle().set("font-weight", "bold");
+		// Due Date column header
+		final Div dueDateHeader = createHeaderCell("Due Date", "100px");
+		dueDateHeader.getStyle().set("font-weight", "bold");
 		// Timeline header
 		final Div timelineHeader = new Div(new Span("Timeline"));
 		timelineHeader.addClassName("gantt-timeline-header");
@@ -93,7 +99,7 @@ public class CGanttChart extends VerticalLayout {
 		timelineHeader.getStyle().set("background-color", "#f8f9fa");
 		timelineHeader.getStyle().set("border", "1px solid #ddd");
 		timelineHeader.getStyle().set("flex-grow", "1");
-		headerLayout.add(nameHeader, responsibleHeader, descriptionHeader, timelineHeader);
+		headerLayout.add(idHeader, nameHeader, responsibleHeader, startDateHeader, dueDateHeader, timelineHeader);
 		headerRow.add(headerLayout);
 	}
 
@@ -220,7 +226,7 @@ public class CGanttChart extends VerticalLayout {
 		final VerticalLayout leftPanel = new VerticalLayout();
 		leftPanel.setSpacing(false);
 		leftPanel.setPadding(false);
-		leftPanel.setWidth("600px"); // Fixed width for name, responsible, description columns
+		leftPanel.setWidth("610px"); // Fixed width for ID, name, responsible, start date, due date columns
 		// Right panel with timeline
 		final VerticalLayout rightPanel = new VerticalLayout();
 		rightPanel.setSpacing(false);
