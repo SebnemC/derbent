@@ -34,11 +34,11 @@ public class CMasterViewSectionGannt<EntityClass extends CEntityDB<EntityClass>>
 	private static final Logger LOGGER = LoggerFactory.getLogger(CMasterViewSectionGannt.class);
 	private static final long serialVersionUID = 1L;
 	protected CGanttChart ganttChart;
-
 	private CGanttDataService ganttDataService;
 	private CSessionService sessionService;
 
-	public CMasterViewSectionGannt(final Class<EntityClass> entityClass, final CAbstractEntityDBPage<EntityClass> page, CGanttDataService ganttDataService, CSessionService sessionService) {
+	public CMasterViewSectionGannt(final Class<EntityClass> entityClass, final CAbstractEntityDBPage<EntityClass> page,
+			CGanttDataService ganttDataService, CSessionService sessionService) {
 		super(entityClass, page);
 		this.ganttDataService = ganttDataService;
 		this.sessionService = sessionService;
@@ -50,10 +50,8 @@ public class CMasterViewSectionGannt<EntityClass extends CEntityDB<EntityClass>>
 	public void createMasterView() {
 		LOGGER.debug("Creating Gantt chart master view");
 		ganttChart = new CGanttChart();
-		
 		// Load project data for Gantt chart
 		refreshMasterView();
-		
 		add(ganttChart);
 	}
 
@@ -73,11 +71,9 @@ public class CMasterViewSectionGannt<EntityClass extends CEntityDB<EntityClass>>
 	@Override
 	public void refreshMasterView() {
 		LOGGER.debug("Refreshing Gantt chart master view");
-		
 		if (ganttChart == null) {
 			return;
 		}
-		
 		// Get current project from session (with null safety)
 		CProject currentProject = null;
 		try {
@@ -87,13 +83,11 @@ public class CMasterViewSectionGannt<EntityClass extends CEntityDB<EntityClass>>
 		} catch (final Exception e) {
 			LOGGER.warn("Error getting active project from session", e);
 		}
-		
 		if (currentProject == null) {
 			LOGGER.debug("No active project, showing empty Gantt chart");
 			ganttChart.setGanttData(new CGanttData(null));
 			return;
 		}
-		
 		// Load Gantt data for the current project
 		try {
 			final CGanttData ganttData;
@@ -103,8 +97,7 @@ public class CMasterViewSectionGannt<EntityClass extends CEntityDB<EntityClass>>
 				ganttData = new CGanttData(currentProject);
 			}
 			ganttChart.setGanttData(ganttData);
-			LOGGER.debug("Loaded Gantt data for project: {} with {} items", 
-					currentProject.getName(), ganttData.size());
+			LOGGER.debug("Loaded Gantt data for project: {} with {} items", currentProject.getName(), ganttData.size());
 		} catch (final Exception e) {
 			LOGGER.error("Error loading Gantt data for project: {}", currentProject.getName(), e);
 			ganttChart.setGanttData(new CGanttData(currentProject));
