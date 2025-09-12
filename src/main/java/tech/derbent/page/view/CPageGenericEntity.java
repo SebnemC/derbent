@@ -36,6 +36,9 @@ public abstract class CPageGenericEntity<EntityClass extends CEntityDB<EntityCla
 	protected final Class<EntityClass> entityClass;
 	protected final CAbstractService<EntityClass> entityService;
 	protected CComponentGridEntity grid;
+	// State tracking for performance optimization
+	private String currentEntityViewName = null;
+	private Class<?> currentEntityType = null;
 	// Services and Entity Information
 	protected final CGridEntityService gridEntityService;
 	protected final String viewName;
@@ -89,10 +92,25 @@ public abstract class CPageGenericEntity<EntityClass extends CEntityDB<EntityCla
 		createDetailsSection();
 	}
 
-	/** Abstract method to get the entity color code for UI styling */
-	public abstract String getEntityColorCode();
-	/** Abstract method to get the entity icon filename */
-	public abstract String getIconFilename();
+	/** Get the entity color code for UI styling using reflection */
+	public String getEntityColorCode() {
+		try {
+			return tech.derbent.abstracts.utils.CAuxillaries.invokeStaticMethodOfStr(this.getClass(), "getStaticEntityColorCode");
+		} catch (Exception e) {
+			LOGGER.warn("Error getting entity color code for {}: {}", this.getClass().getSimpleName(), e.getMessage());
+			return "#007bff"; // Default color
+		}
+	}
+
+	/** Get the entity icon filename using reflection */
+	public String getIconFilename() {
+		try {
+			return tech.derbent.abstracts.utils.CAuxillaries.invokeStaticMethodOfStr(this.getClass(), "getStaticIconFilename");
+		} catch (Exception e) {
+			LOGGER.warn("Error getting icon filename for {}: {}", this.getClass().getSimpleName(), e.getMessage());
+			return "vaadin:question"; // Default icon
+		}
+	}
 
 	private void initSplitLayout(final VerticalLayout detailsBase) {
 		splitLayout.setSizeFull();
@@ -181,9 +199,7 @@ public abstract class CPageGenericEntity<EntityClass extends CEntityDB<EntityCla
 	@SuppressWarnings ("unchecked")
 	private void populateEntityDetails(CEntityDB<?> entity) throws Exception {
 		if (entity == null) {
-			getBaseDetailsLayout().removeAll();
-			currentBinder = null;
-			crudToolbar = null;
+			clearEntityDetails();
 			return;
 		}
 		Class<? extends CAbstractEntityDBPage<?>> entityViewClass = entity.getViewClass();
@@ -193,19 +209,72 @@ public abstract class CPageGenericEntity<EntityClass extends CEntityDB<EntityCla
 		Check.isTrue(entityClass.isAssignableFrom(entity.getClass()),
 				"Selected entity type " + entity.getClass().getSimpleName() + " does not match expected type " + entityClass.getSimpleName());
 		EntityClass typedEntity = (EntityClass) entity;
-		// Create a properly typed binder for this specific entity type - this solves the issue
-		// of having multiple binders by creating one shared binder for both form and toolbar
+		// Performance optimization: check if we can reuse existing components
+		if (canReuseExistingComponents(entityViewName, entity.getClass())) {
+			LOGGER.debug("Reusing existing components for entity type: {} view: {}", entity.getClass().getSimpleName(), entityViewName);
+			reloadEntityValues(typedEntity);
+			return;
+		}
+		LOGGER.debug("Rebuilding components for entity type: {} view: {}", entity.getClass().getSimpleName(), entityViewName);
+		rebuildEntityDetails(typedEntity, entityViewName);
+	}
+
+	/** Checks if existing components can be reused for the given entity view */
+	private boolean canReuseExistingComponents(String entityViewName, Class<?> entityType) {
+		return currentEntityViewName != null && currentEntityType != null && currentEntityViewName.equals(entityViewName)
+				&& currentEntityType.equals(entityType) && currentBinder != null && crudToolbar != null;
+	}
+
+	/** Reloads entity values into existing components without rebuilding the UI */
+	@SuppressWarnings ("unchecked")
+	private void reloadEntityValues(EntityClass typedEntity) {
+		try {
+			// Update the toolbar's current entity
+			crudToolbar.setCurrentEntity(typedEntity);
+			// Update the binder with new entity values
+			CEnhancedBinder<EntityClass> typedBinder = (CEnhancedBinder<EntityClass>) (CEnhancedBinder<?>) currentBinder;
+			typedBinder.setBean(typedEntity);
+			LOGGER.debug("Successfully reloaded entity values for: {}", typedEntity.getClass().getSimpleName());
+		} catch (Exception e) {
+			LOGGER.warn("Error reloading entity values, falling back to rebuild: {}", e.getMessage());
+			// If reloading fails, fall back to rebuilding
+			try {
+				rebuildEntityDetails(typedEntity, currentEntityViewName);
+			} catch (Exception rebuildException) {
+				LOGGER.error("Error rebuilding entity details: {}", rebuildException.getMessage());
+				clearEntityDetails();
+			}
+		}
+	}
+
+	/** Rebuilds entity details from scratch */
+	@SuppressWarnings ("unchecked")
+	private void rebuildEntityDetails(EntityClass typedEntity, String entityViewName) throws Exception {
+		// Clear existing state
+		clearEntityDetails();
+		// Create a properly typed binder for this specific entity type
 		CEnhancedBinder<EntityClass> typedBinder = new CEnhancedBinder<>(entityClass);
 		// Create and configure toolbar using the factory method
 		CCrudToolbar<EntityClass> toolbar = createCrudToolbar(typedBinder, typedEntity);
 		crudToolbar = toolbar;
-		// Update the current binder to be the properly typed one - this ensures buildScreen uses the same binder
-		@SuppressWarnings ("unchecked")
+		// Update the current binder to be the properly typed one
 		CEnhancedBinder<CEntityDB<?>> genericBinder = (CEnhancedBinder<CEntityDB<?>>) (CEnhancedBinder<?>) typedBinder;
 		currentBinder = genericBinder;
-		// Build screen with toolbar - the toolbar and form will now use the same shared binder
-		buildScreen(entityViewName, entity.getClass(), toolbar);
+		// Update state tracking
+		currentEntityViewName = entityViewName;
+		currentEntityType = typedEntity.getClass();
+		// Build screen with toolbar
+		buildScreen(entityViewName, typedEntity.getClass(), toolbar, getBaseDetailsLayout());
 		typedBinder.setBean(typedEntity);
+	}
+
+	/** Clears entity details and resets state */
+	private void clearEntityDetails() {
+		getBaseDetailsLayout().removeAll();
+		currentBinder = null;
+		crudToolbar = null;
+		currentEntityViewName = null;
+		currentEntityType = null;
 	}
 
 	/** Refreshes the grid to show updated data */

@@ -19,8 +19,6 @@ public class CPageRisk extends CPageGenericEntity<CRisk> {
 
 	private static final long serialVersionUID = 1L;
 
-	public static String getIconColorCode() { return getStaticIconColorCode(); }
-
 	public static String getStaticEntityColorCode() { return getStaticIconColorCode(); }
 
 	public static String getStaticIconColorCode() { return CRisk.getIconColorCode(); }
@@ -39,10 +37,4 @@ public class CPageRisk extends CPageGenericEntity<CRisk> {
 		sessionService.getActiveProject().ifPresent(newRisk::setProject);
 		return newRisk;
 	}
-
-	@Override
-	public String getEntityColorCode() { return getIconColorCode(); }
-
-	@Override
-	public String getIconFilename() { return CRisk.getIconFilename(); }
 }

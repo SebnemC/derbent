@@ -21,15 +21,13 @@ public class CPageActivityType extends CPageGenericEntity<CActivityType> {
 
 	private static final long serialVersionUID = 1L;
 
-	public static String getIconColorCode() {
-		return CPageActivityType.getStaticIconColorCode(); // Use the static method from COrder
-	}
-
 	public static String getStaticEntityColorCode() { return getStaticIconColorCode(); }
 
 	public static String getStaticIconColorCode() {
 		return "#007bff"; // Blue color for activity type entities
 	}
+
+	public static String getStaticIconFilename() { return CActivityType.getIconFilename(); }
 
 	private final CActivityTypeService activityTypeService;
 
@@ -67,10 +65,4 @@ public class CPageActivityType extends CPageGenericEntity<CActivityType> {
 		sessionService.getActiveProject().ifPresent(newActivityType::setProject);
 		return newActivityType;
 	}
-
-	@Override
-	public String getEntityColorCode() { return getIconColorCode(); }
-
-	@Override
-	public String getIconFilename() { return CActivityType.getIconFilename(); }
 }

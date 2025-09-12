@@ -22,8 +22,6 @@ public class CPageSample extends CPageGenericEntity<CActivity> {
 
 	private static final long serialVersionUID = 1L;
 
-	public static String getIconColorCode() { return getStaticIconColorCode(); }
-
 	public static String getStaticEntityColorCode() { return getStaticIconColorCode(); }
 
 	public static String getStaticIconColorCode() {
@@ -67,10 +65,4 @@ public class CPageSample extends CPageGenericEntity<CActivity> {
 		sessionService.getActiveProject().ifPresent(newActivity::setProject);
 		return newActivity;
 	}
-
-	@Override
-	public String getEntityColorCode() { return getIconColorCode(); }
-
-	@Override
-	public String getIconFilename() { return CActivity.getIconFilename(); }
 }

@@ -50,11 +50,11 @@ public abstract class CPageBaseProjectAware extends CPageBase implements CProjec
 	protected abstract <T extends CEntityDB<T>> T createNewEntity();
 
 	protected void buildScreen(final String baseViewName) {
-		buildScreen(baseViewName, CEntityDB.class);
+		buildScreen(baseViewName, CEntityDB.class, null, getBaseDetailsLayout());
 	}
 
 	protected <T extends CEntityDB<?>> void buildScreen(final String baseViewName, final Class<T> entityClass) {
-		buildScreen(baseViewName, entityClass, null);
+		buildScreen(baseViewName, entityClass, null, getBaseDetailsLayout());
 	}
 
 	/** Build screen with optional toolbar integration. Creates its own binder to use for both form and toolbar components.
@@ -62,13 +62,23 @@ public abstract class CPageBaseProjectAware extends CPageBase implements CProjec
 	 * @param entityClass  the entity class type
 	 * @param toolbar      optional toolbar that will use the same binder (can be null) */
 	protected <T extends CEntityDB<?>> void buildScreen(final String baseViewName, final Class<T> entityClass, final CCrudToolbar<?> toolbar) {
+		buildScreen(baseViewName, entityClass, toolbar, getBaseDetailsLayout());
+	}
+
+	/** Build screen with optional toolbar integration and parameterized details layout.
+	 * @param baseViewName  the view name to build
+	 * @param entityClass   the entity class type
+	 * @param toolbar       optional toolbar that will use the same binder (can be null)
+	 * @param detailsLayout the layout to build the screen into */
+	protected <T extends CEntityDB<?>> void buildScreen(final String baseViewName, final Class<T> entityClass, final CCrudToolbar<?> toolbar,
+			final CFlexLayout detailsLayout) {
 		try {
-			getBaseDetailsLayout().removeAll();
+			detailsLayout.removeAll();
 			final CDetailSection screen = screenService.findByNameAndProject(sessionService.getActiveProject().orElse(null), baseViewName);
 			if (screen == null) {
 				final String errorMsg = "Screen not found: " + baseViewName + " for project: "
 						+ sessionService.getActiveProject().map(CProject::getName).orElse("No Project");
-				getBaseDetailsLayout().add(new CDiv(errorMsg));
+				detailsLayout.add(new CDiv(errorMsg));
 				currentBinder = null;
 				return;
 			}
@@ -82,25 +92,25 @@ public abstract class CPageBaseProjectAware extends CPageBase implements CProjec
 			if (toolbar != null) {
 				// Add toolbar first (stays at top, not scrollable)
 				toolbar.addClassName("crud-toolbar");
-				getBaseDetailsLayout().add(toolbar);
+				detailsLayout.add(toolbar);
 				// Create scrollable content area
 				CFlexLayout scrollableContent = CFlexLayout.forEntityPage();
 				final Scroller contentScroller = new Scroller();
 				contentScroller.setContent(scrollableContent);
 				contentScroller.setScrollDirection(Scroller.ScrollDirection.VERTICAL);
 				// Add scrollable content below toolbar
-				getBaseDetailsLayout().add(contentScroller);
-				getBaseDetailsLayout().setFlexGrow(1, contentScroller);
+				detailsLayout.add(contentScroller);
+				detailsLayout.setFlexGrow(1, contentScroller);
 				// Build details in the scrollable content area
 				detailsBuilder.buildDetails(screen, currentBinder, scrollableContent);
 			} else {
 				// No toolbar - build details directly
-				detailsBuilder.buildDetails(screen, currentBinder, getBaseDetailsLayout());
+				detailsBuilder.buildDetails(screen, currentBinder, detailsLayout);
 			}
 		} catch (final Exception e) {
 			final String errorMsg = "Error building details layout for screen: " + baseViewName;
 			e.printStackTrace();
-			getBaseDetailsLayout().add(new CDiv(errorMsg));
+			detailsLayout.add(new CDiv(errorMsg));
 			currentBinder = null; // Clear binder on error
 		}
 	}
