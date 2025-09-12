@@ -1,5 +1,7 @@
 package tech.derbent.comments.domain;
 
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import jakarta.persistence.AttributeOverride;
@@ -38,6 +40,7 @@ public class CComment extends CEvent<CComment> {
 	// Activity this comment belongs to
 	@ManyToOne (fetch = FetchType.LAZY)
 	@JoinColumn (name = "activity_id", nullable = false)
+	@OnDelete (action = OnDeleteAction.CASCADE) // Ensures DB-level cascade delete
 	@AMetaData (
 			displayName = "Activity", required = true, readOnly = false, description = "Activity this comment belongs to", hidden = false, order = 2,
 			dataProviderBean = "CActivityService"

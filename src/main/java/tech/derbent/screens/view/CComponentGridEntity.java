@@ -139,7 +139,7 @@ public class CComponentGridEntity extends CDiv implements CProjectChangeListener
 		if (grid != null && entity != null) {
 			try {
 				// Cast to raw grid to avoid generic type issues
-				CGrid rawGrid = (CGrid) grid;
+				CGrid rawGrid = grid;
 				rawGrid.select(entity);
 				LOGGER.debug("Selected entity in grid: {}", entity.getId());
 			} catch (Exception e) {
@@ -173,8 +173,8 @@ public class CComponentGridEntity extends CDiv implements CProjectChangeListener
 						int nextIndex = (currentIndex + 1) < items.size() ? (currentIndex + 1) : 0;
 						Object nextItem = items.get(nextIndex);
 						// Cast to raw grid to avoid generic type issues
-						CGrid rawGrid = (CGrid) grid;
-						rawGrid.select(nextItem);
+						CGrid rawGrid = grid;
+						rawGrid.select((CEntityDB) nextItem);
 						LOGGER.debug("Selected next item at index: {}", nextIndex);
 					} else {
 						// No current selection, select first item
@@ -197,7 +197,7 @@ public class CComponentGridEntity extends CDiv implements CProjectChangeListener
 		if (grid != null) {
 			try {
 				// Cast to raw grid to avoid generic type issues
-				CGrid rawGrid = (CGrid) grid;
+				CGrid rawGrid = grid;
 				grid.getDataProvider().fetch(new com.vaadin.flow.data.provider.Query<>()).findFirst().ifPresent(entity -> {
 					rawGrid.select(entity);
 					LOGGER.debug("Selected first item in grid");
