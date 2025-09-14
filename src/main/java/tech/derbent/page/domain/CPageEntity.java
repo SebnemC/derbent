@@ -59,6 +59,40 @@ public class CPageEntity extends CProjectItem<CPageEntity> {
 			description = "Use like, Project.Page, separate parent with . ", hidden = false, order = 70, maxLength = 100
 	)
 	private String title;
+	@Column (nullable = true, length = 500)
+	@Size (max = 500)
+	@AMetaData (
+			displayName = "Security Permissions", required = false, readOnly = false, defaultValue = "PermitAll",
+			description = "Security permissions: PermitAll, RolesAllowed(...), or empty for anonymous", hidden = false, order = 80, maxLength = 500
+	)
+	private String securityPermissions;
+	@Column (nullable = true, length = 200)
+	@Size (max = 200)
+	@AMetaData (
+			displayName = "Parent Menu", required = false, readOnly = false, defaultValue = "",
+			description = "Parent menu path for hierarchical navigation (e.g., 'Project', 'Settings')", hidden = false, order = 90, maxLength = 200
+	)
+	private String parentMenu;
+	@Column (nullable = true, length = 50)
+	@Size (max = 50)
+	@AMetaData (
+			displayName = "Order Priority", required = false, readOnly = false, defaultValue = "1.0",
+			description = "Menu ordering priority (decimal number)", hidden = false, order = 100, maxLength = 50
+	)
+	private String orderPriority;
+	@Column (nullable = true, length = 300)
+	@Size (max = 300)
+	@AMetaData (
+			displayName = "Description", required = false, readOnly = false, defaultValue = "", description = "Page description for documentation",
+			hidden = false, order = 110, maxLength = 300
+	)
+	private String pageDescription;
+	@Column (nullable = true)
+	@AMetaData (
+			displayName = "Enabled", required = false, readOnly = false, defaultValue = "true",
+			description = "Whether this page is enabled and accessible", hidden = false, order = 120
+	)
+	private Boolean enabled;
 
 	/** Default constructor for JPA. */
 	public CPageEntity() {
@@ -86,6 +120,16 @@ public class CPageEntity extends CProjectItem<CPageEntity> {
 
 	public String getTitle() { return title; }
 
+	public String getSecurityPermissions() { return securityPermissions; }
+
+	public String getParentMenu() { return parentMenu; }
+
+	public String getOrderPriority() { return orderPriority; }
+
+	public String getPageDescription() { return pageDescription; }
+
+	public Boolean getEnabled() { return enabled; }
+
 	@Override
 	protected void initializeDefaults() {
 		super.initializeDefaults();
@@ -95,6 +139,11 @@ public class CPageEntity extends CProjectItem<CPageEntity> {
 		route = "UnknownHTTPRoute";
 		// must be unique
 		title = "Unknown.NewPage";
+		securityPermissions = "PermitAll";
+		parentMenu = "";
+		orderPriority = "1.0";
+		pageDescription = "";
+		enabled = Boolean.TRUE;
 	}
 
 	public void setIcon(String icon) { this.icon = icon; }
@@ -106,6 +155,16 @@ public class CPageEntity extends CProjectItem<CPageEntity> {
 	public void setRoute(final String route) { this.route = route; }
 
 	public void setTitle(String title) { this.title = title; }
+
+	public void setSecurityPermissions(String securityPermissions) { this.securityPermissions = securityPermissions; }
+
+	public void setParentMenu(String parentMenu) { this.parentMenu = parentMenu; }
+
+	public void setOrderPriority(String orderPriority) { this.orderPriority = orderPriority; }
+
+	public void setPageDescription(String pageDescription) { this.pageDescription = pageDescription; }
+
+	public void setEnabled(Boolean enabled) { this.enabled = enabled; }
 
 	@Override
 	public Class<? extends CAbstractEntityDBPage<?>> getViewClass() { // TODO Auto-generated method stub

@@ -43,6 +43,12 @@ public final class CPageEntityView extends CGridViewBaseProject<CPageEntity> {
 		grid.addColumnEntityNamed(CEntityOfProject::getProject, "Project");
 		grid.addShortTextColumn(CEntityNamed::getName, "Name", "name");
 		grid.addColumn(CEntityNamed::getDescriptionShort, "Description");
+		grid.addColumn(CPageEntity::getRoute, "Route");
+		grid.addColumn(CPageEntity::getTitle, "Menu Title");
+		grid.addColumn(CPageEntity::getMenuOrder, "Order");
+		grid.addColumn(CPageEntity::getParentMenu, "Parent Menu");
+		grid.addColumn(CPageEntity::getSecurityPermissions, "Security");
+		grid.addColumn(CPageEntity::getEnabled, "Enabled");
 	}
 
 	@Override
