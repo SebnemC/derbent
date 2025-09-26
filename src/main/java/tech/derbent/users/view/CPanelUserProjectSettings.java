@@ -35,6 +35,18 @@ public class CPanelUserProjectSettings extends CPanelUserProjectBase<CUser, CUse
 	@Override
 	protected void onSettingsSaved(final CUserProjectSettings settings) {
 		LOGGER.debug("Saving user project settings: {}", settings);
+		LOGGER.debug("Settings user: {}, user ID: {}", settings.getUser(), settings.getUser() != null ? settings.getUser().getId() : "null");
+		LOGGER.debug("Settings project: {}, project ID: {}", settings.getProject(), settings.getProject() != null ? settings.getProject().getId() : "null");
+		LOGGER.debug("Settings role: {}, permission: {}", settings.getRole(), settings.getPermission());
+		
+		// Validate that user is properly set with a valid ID
+		if (settings.getUser() == null) {
+			throw new IllegalStateException("User cannot be null when saving user project settings");
+		}
+		if (settings.getUser().getId() == null) {
+			throw new IllegalStateException("User must have a valid ID when saving user project settings. User: " + settings.getUser());
+		}
+		
 		try {
 			// Use the service layer to properly persist the relationship
 			final CUserProjectSettings savedSettings;
@@ -84,6 +96,7 @@ public class CPanelUserProjectSettings extends CPanelUserProjectBase<CUser, CUse
 		if (!validateUserSelection() || !validateServiceAvailability("Project")) {
 			return;
 		}
+		LOGGER.debug("Opening add dialog for user: {}, user ID: {}", currentUser, currentUser != null ? currentUser.getId() : "null");
 		final CUserProjectSettingsDialog dialog =
 				new CUserProjectSettingsDialog((CUserService) entityService, projectService, null, currentUser, this::onSettingsSaved);
 		dialog.open();
@@ -120,6 +133,10 @@ public class CPanelUserProjectSettings extends CPanelUserProjectBase<CUser, CUse
 	private boolean validateUserSelection() {
 		if (currentUser == null) {
 			new CWarningDialog("Please select a user first before managing project settings.").open();
+			return false;
+		}
+		if (currentUser.getId() == null) {
+			new CWarningDialog("Selected user must be saved before managing project settings.").open();
 			return false;
 		}
 		return true;
