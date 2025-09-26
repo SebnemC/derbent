@@ -48,7 +48,22 @@ public class CPanelUserProjectSettings extends CPanelUserProjectBase<CUser, CUse
 				LOGGER.debug("Updated user project settings with ID: {}", savedSettings.getId());
 			}
 			// Update the local collection if accessors are available
-			userProjectSettingsService.save(settings);
+			if (getSettings != null) {
+				final List<CUserProjectSettings> settingsList = getSettings.get();
+				boolean found = false;
+				// Find and update existing entry or add new one
+				for (int i = 0; i < settingsList.size(); i++) {
+					final CUserProjectSettings existing = settingsList.get(i);
+					if ((existing.getId() != null) && existing.getId().equals(savedSettings.getId())) {
+						settingsList.set(i, savedSettings);
+						found = true;
+						break;
+					}
+				}
+				if (!found) {
+					settingsList.add(savedSettings);
+				}
+			}
 			// Save the parent entity if needed
 			if (saveEntity != null) {
 				saveEntity.run();
