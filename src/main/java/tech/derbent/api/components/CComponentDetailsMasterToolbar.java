@@ -13,6 +13,7 @@ import tech.derbent.screens.view.CComponentGridEntity;
 import tech.derbent.screens.view.CFieldSelectionDialog;
 
 public class CComponentDetailsMasterToolbar extends HorizontalLayout {
+
 	private static final Logger LOGGER = LoggerFactory.getLogger(CComponentDetailsMasterToolbar.class);
 	private static final long serialVersionUID = 1L;
 	private CButton btnEditGrid;

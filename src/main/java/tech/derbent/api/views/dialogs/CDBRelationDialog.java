@@ -24,6 +24,7 @@ import tech.derbent.api.utils.Check;
  * @param <RelatedEntityClass> The related entity type being selected */
 public abstract class CDBRelationDialog<RelationshipClass extends CEntityDB<RelationshipClass>, MainEntityClass extends CEntityDB<MainEntityClass>,
 		RelatedEntityClass extends CEntityDB<RelatedEntityClass>> extends CDBEditDialog<RelationshipClass> {
+
 	private static final long serialVersionUID = 1L;
 	protected static final Logger LOGGER = LoggerFactory.getLogger(CDBRelationDialog.class);
 	protected CAbstractService<RelatedEntityClass> detailService;
