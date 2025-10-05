@@ -486,10 +486,16 @@ public class CDataInitializer {
 		admin.setLastname("Yılmaz");
 		admin.setPhone("+90-462-751-1001");
 		admin.setProfilePictureData(profilePictureBytes);
-		final var companies = companyService.findAll();
-		final CCompany company = companies.isEmpty() ? null : companies.get(0);
-		Check.notNull(company, "At least one company must exist to assign to admin user");
 		userService.save(admin);
+		// Associate admin with first company (typically the tech company)
+		final CCompany company = companyService.getRandom();
+		Check.notNull(company, "At least one company must exist to assign to admin user");
+		// Find a suitable role for the company
+		final List<tech.derbent.api.roles.domain.CUserCompanyRole> companyRoles = userCompanyRoleService.findAll().stream()
+				.filter(role -> role.getCompany() != null && role.getCompany().getId().equals(company.getId())).filter(role -> !role.isGuest())
+				.collect(java.util.stream.Collectors.toList());
+		final tech.derbent.api.roles.domain.CUserCompanyRole role = companyRoles.isEmpty() ? null : companyRoles.get(0);
+		userCompanySettingsService.addUserToCompany(admin, company, "OWNER", role);
 	}
 
 	private void createApprovalStatus(final String name, final CProject project, final String description, final String color, final boolean isFinal,
@@ -669,12 +675,22 @@ public class CDataInitializer {
 		final CProject project = new CProject("Digital Transformation Initiative");
 		project.setDescription("Comprehensive digital transformation for enhanced customer experience");
 		project.setIsActive(true);
+		// Assign to technology company
+		final CCompany company = companyService.findByName(COMPANY_OF_TEKNOLOJI).orElse(null);
+		if (company != null) {
+			project.setCompany(company);
+		}
 		projectService.save(project);
 	}
 
 	private void createProjectInfrastructureUpgrade() {
 		final CProject project = new CProject("Infrastructure Upgrade Project");
 		project.setDescription("Upgrading IT infrastructure for improved performance and scalability");
+		// Assign to consulting company
+		final CCompany company = companyService.findByName(COMPANY_OF_DANISMANLIK).orElse(null);
+		if (company != null) {
+			project.setCompany(company);
+		}
 		projectService.save(project);
 	}
 
@@ -690,11 +706,26 @@ public class CDataInitializer {
 		manager.setPhone("+90-462-751-1002");
 		manager.setProfilePictureData(profilePictureBytes);
 		userService.save(manager);
+		// Associate with company (Of Teknoloji Çözümleri based on email domain)
+		final CCompany company = companyService.findByName(COMPANY_OF_TEKNOLOJI).orElse(null);
+		if (company != null) {
+			// Find a suitable role for the company
+			final List<tech.derbent.api.roles.domain.CUserCompanyRole> companyRoles = userCompanyRoleService.findAll().stream()
+					.filter(role -> role.getCompany() != null && role.getCompany().getId().equals(company.getId())).filter(role -> !role.isGuest())
+					.collect(java.util.stream.Collectors.toList());
+			final tech.derbent.api.roles.domain.CUserCompanyRole role = companyRoles.isEmpty() ? null : companyRoles.get(0);
+			userCompanySettingsService.addUserToCompany(manager, company, "MANAGER", role);
+		}
 	}
 
 	private void createProjectProductDevelopment() {
 		final CProject project = new CProject("New Product Development");
 		project.setDescription("Development of innovative products to expand market reach");
+		// Assign to healthcare company
+		final CCompany company = companyService.findByName(COMPANY_OF_SAGLIK).orElse(null);
+		if (company != null) {
+			project.setCompany(company);
+		}
 		projectService.save(project);
 	}
 
@@ -984,9 +1015,17 @@ public class CDataInitializer {
 		analyst.setLastname("Demir");
 		analyst.setPhone("+90-462-751-1005");
 		analyst.setProfilePictureData(profilePictureBytes);
-		// Set user role directly on entity
-		// Set company association directly on entity
 		userService.save(analyst);
+		// Associate with company (Of Sağlık Teknolojileri based on email domain)
+		final CCompany company = companyService.findByName(COMPANY_OF_SAGLIK).orElse(null);
+		if (company != null) {
+			// Find a suitable role for the company
+			final List<tech.derbent.api.roles.domain.CUserCompanyRole> companyRoles = userCompanyRoleService.findAll().stream()
+					.filter(role -> role.getCompany() != null && role.getCompany().getId().equals(company.getId())).filter(role -> !role.isGuest())
+					.collect(java.util.stream.Collectors.toList());
+			final tech.derbent.api.roles.domain.CUserCompanyRole role = companyRoles.isEmpty() ? null : companyRoles.get(0);
+			userCompanySettingsService.addUserToCompany(analyst, company, "MEMBER", role);
+		}
 	}
 
 	/** Creates team member Bob Wilson. */
@@ -1000,6 +1039,16 @@ public class CDataInitializer {
 		developer.setPhone("+90-462-751-0404");
 		developer.setProfilePictureData(profilePictureBytes);
 		userService.save(developer);
+		// Associate with company (Of Stratejik Danışmanlık based on email domain)
+		final CCompany company = companyService.findByName(COMPANY_OF_DANISMANLIK).orElse(null);
+		if (company != null) {
+			// Find a suitable role for the company
+			final List<tech.derbent.api.roles.domain.CUserCompanyRole> companyRoles = userCompanyRoleService.findAll().stream()
+					.filter(role -> role.getCompany() != null && role.getCompany().getId().equals(company.getId())).filter(role -> !role.isGuest())
+					.collect(java.util.stream.Collectors.toList());
+			final tech.derbent.api.roles.domain.CUserCompanyRole role = companyRoles.isEmpty() ? null : companyRoles.get(0);
+			userCompanySettingsService.addUserToCompany(developer, company, "MEMBER", role);
+		}
 	}
 
 	/** Creates team member Mary Johnson. */
@@ -1012,6 +1061,16 @@ public class CDataInitializer {
 		teamMember.setPhone("+90-462-751-1003");
 		teamMember.setProfilePictureData(profilePictureBytes);
 		userService.save(teamMember);
+		// Associate with company (Of Endüstri Dinamikleri based on email domain)
+		final CCompany company = companyService.findByName(COMPANY_OF_ENDUSTRI).orElse(null);
+		if (company != null) {
+			// Find a suitable role for the company
+			final List<tech.derbent.api.roles.domain.CUserCompanyRole> companyRoles = userCompanyRoleService.findAll().stream()
+					.filter(role -> role.getCompany() != null && role.getCompany().getId().equals(company.getId())).filter(role -> !role.isGuest())
+					.collect(java.util.stream.Collectors.toList());
+			final tech.derbent.api.roles.domain.CUserCompanyRole role = companyRoles.isEmpty() ? null : companyRoles.get(0);
+			userCompanySettingsService.addUserToCompany(teamMember, company, "MEMBER", role);
+		}
 	}
 
 	/** Creates team member users across different companies. */

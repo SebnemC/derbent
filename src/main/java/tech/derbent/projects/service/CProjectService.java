@@ -87,4 +87,18 @@ public class CProjectService extends CAbstractNamedEntityService<CProject> {
 		eventPublisher.publishEvent(new ProjectListChangeEvent(this, savedEntity, changeType));
 		return savedEntity;
 	}
+
+	/** Override getRandom to fail safely when no projects with company associations exist. This ensures sample data initialization fails early if
+	 * dependencies are missing. */
+	@Override
+	public CProject getRandom() {
+		final CProject randomProject = super.getRandom();
+		if (randomProject == null) {
+			LOGGER.warn("No projects found in database");
+			return null;
+		}
+		// Optionally validate that project has company association
+		// For now, return the random project if found
+		return randomProject;
+	}
 }

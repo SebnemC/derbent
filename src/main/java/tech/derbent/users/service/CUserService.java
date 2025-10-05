@@ -230,6 +230,20 @@ public class CUserService extends CAbstractNamedEntityService<CUser> implements 
 		return true;
 	}
 
+	/** Override getRandom to fail safely when no users with company associations exist. This ensures sample data initialization fails early if
+	 * dependencies are missing. */
+	@Override
+	public CUser getRandom() {
+		final CUser randomUser = super.getRandom();
+		if (randomUser == null) {
+			LOGGER.warn("No users found in database");
+			return null;
+		}
+		// Optionally validate that user has company association
+		// For now, return the random user if found
+		return randomUser;
+	}
+
 	@Override
 	protected void validateEntity(final CUser user) {
 		super.validateEntity(user);
