@@ -7,12 +7,15 @@ import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import tech.derbent.api.annotations.AMetaData;
 import tech.derbent.api.domains.CEntityNamed;
 import tech.derbent.api.interfaces.ISearchable;
 import tech.derbent.api.utils.Check;
+import tech.derbent.companies.domain.CCompany;
 import tech.derbent.users.domain.CUserProjectSettings;
 
 /** CProject - Domain entity representing projects. Layer: Domain (MVC) Inherits from CEntityDB to provide database functionality. */
@@ -24,6 +27,13 @@ public class CProject extends CEntityNamed<CProject> implements ISearchable {
 	public static final String DEFAULT_COLOR = "#905300";
 	public static final String DEFAULT_ICON = "vaadin:credit-card";
 	public static final String VIEW_NAME = "Projects View";
+	@ManyToOne (fetch = FetchType.EAGER)
+	@JoinColumn (name = "company_id", nullable = true)
+	@AMetaData (
+			displayName = "Company", required = false, readOnly = false, description = "Company associated with this project", hidden = false,
+			order = 5
+	)
+	private CCompany company;
 	// lets keep it layzily loaded to avoid loading all user settings at once
 	@OneToMany (mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
 	@AMetaData (
@@ -40,6 +50,12 @@ public class CProject extends CEntityNamed<CProject> implements ISearchable {
 	public CProject(final String name) {
 		super(CProject.class, name);
 	}
+
+	/** Gets the company associated with this project. */
+	public CCompany getCompany() { return company; }
+
+	/** Sets the company associated with this project. */
+	public void setCompany(final CCompany company) { this.company = company; }
 
 	/** Gets the list of user project settings for this project. */
 	public List<CUserProjectSettings> getUserSettings() { return userSettings; }
